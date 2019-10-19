@@ -17,6 +17,7 @@ GraphicsClass::GraphicsClass()
 	m_TextureShader = 0;
 	m_Bitmap = 0;
 	m_Text = 0;
+	m_Input = 0;
 }
 
 
@@ -30,10 +31,13 @@ GraphicsClass::~GraphicsClass()
 }
 
 
-bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
+bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, InputClass* input)
 {
 	bool result;
 	D3DXMATRIX baseViewMatrix;
+
+	m_Input = input;
+
 
 	// Create the Direct3D object.
 	m_D3D = new D3DClass;
@@ -241,13 +245,21 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 {
 	bool result;
 	static float rotation = 0.0f;
+	int dir = 1;
+	int deltaX, deltaY;
+	static float delay = 0.0f;
 
-	// Update the rotation variable each frame.
-	rotation += (float)D3DX_PI * 0.005f;
-	if (rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
+	// Run the frame processing for the particle system.
+	m_Input->GetMouseDeltaPosition(deltaX, deltaY);
+	m_Camera->Yaw(deltaX * frameTime * 0.00018f);
+	m_Camera->Pitch(deltaY * frameTime * 0.00018f);
+
+	
+	if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
+	if (m_Input->GetKey(KeyCode::A)) m_Camera->Strafe(-dir * frameTime);
+	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
+	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
+
 
 	// Set the frames per second.
 	result = m_Text->SetFps(fps, m_D3D->GetDeviceContext());

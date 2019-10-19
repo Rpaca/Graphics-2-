@@ -16,6 +16,7 @@
 #include "lightclass.h"
 #include "textureshaderclass.h"
 #include "bitmapclass.h"
+#include "inputclass.h"
 
 /////////////
 // GLOBALS //
@@ -37,7 +38,7 @@ public:
 	GraphicsClass(const GraphicsClass&);
 	~GraphicsClass();
 
-	bool Initialize(int, int, HWND);
+	bool Initialize(int, int, HWND, InputClass*);
 	void Shutdown();
 	bool Frame(int, int, float);
 	bool Render(float);
@@ -49,6 +50,7 @@ private:
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
 
+	InputClass* m_Input;
 	TextureShaderClass* m_TextureShader;
 	BitmapClass* m_Bitmap;
 	TextClass* m_Text;

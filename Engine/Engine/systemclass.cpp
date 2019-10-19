@@ -45,7 +45,11 @@ bool SystemClass::Initialize()
 	}
 
 	// Initialize the input object.
-	m_Input->Initialize();
+	if (!m_Input->Initialize(m_hinstance, m_hwnd, screenWidth, screenHeight))
+	{
+		MessageBox(m_hwnd, L"Could not initialize the input object.", L"Error", MB_OK);
+		return false;
+	}
 
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
 	m_Graphics = new GraphicsClass;
@@ -55,7 +59,7 @@ bool SystemClass::Initialize()
 	}
 
 	// Initialize the graphics object.
-	result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd);
+	result = m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd, m_Input);
 	if(!result)
 	{
 		return false;
@@ -175,7 +179,11 @@ void SystemClass::Run()
 				done = true;
 			}
 		}
-
+		// 사용자가 ESC키를 눌렀는지 확인 후 종료 처리함
+		if (m_Input->IsEscapePressed() == true)
+		{
+			break;
+		}
 	}
 
 	return;
@@ -186,13 +194,15 @@ bool SystemClass::Frame()
 {
 	bool result;
 
+	int mouseX = 0, mouseY = 0;
+
 	// Update the system stats.
 	m_Timer->Frame();
 	m_Fps->Frame();
 	m_Cpu->Frame();
 
-	// Check if the user pressed escape and wants to exit the application.
-	if(m_Input->IsKeyDown(VK_ESCAPE))
+	// 입력 프레임 처리를 수행합니다
+	if (!m_Input->Frame())
 	{
 		return false;
 	}
@@ -210,30 +220,7 @@ bool SystemClass::Frame()
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	switch(umsg)
-	{
-		// Check if a key has been pressed on the keyboard.
-		case WM_KEYDOWN:
-		{
-			// If a key is pressed send it to the input object so it can record that state.
-			m_Input->KeyDown((unsigned int)wparam);
-			return 0;
-		}
-
-		// Check if a key has been released on the keyboard.
-		case WM_KEYUP:
-		{
-			// If a key is released then send it to the input object so it can unset the state for that key.
-			m_Input->KeyUp((unsigned int)wparam);
-			return 0;
-		}
-
-		// Any other messages send to the default message handler as our application won't make use of them.
-		default:
-		{
-			return DefWindowProc(hwnd, umsg, wparam, lparam);
-		}
-	}
+	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
 
 
