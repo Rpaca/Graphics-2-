@@ -1,0 +1,44 @@
+//////////////////////////////////////////////////////////////////////////////////
+//// Filename: skyboxclass.h
+//////////////////////////////////////////////////////////////////////////////////
+//#ifndef _SKYBOXCLASS_H_
+//#define _SKYBOXCLASS_H_
+//
+////////////////
+//// INCLUDES //
+////////////////
+//#include <d3d11.h>
+//#include <xnamath.h>
+//
+//////////////////////////////////////////////////////////////////////////////////
+//// Class name: SkyboxClass
+//////////////////////////////////////////////////////////////////////////////////
+//class SkyboxClass
+//{
+//public:
+//	SkyboxClass();
+//	SkyboxClass(const SkyboxClass&);
+//	~SkyboxClass();
+//
+//
+//private:
+//	ID3D11Buffer* sphereIndexBuffer;
+//	ID3D11Buffer* sphereVertBuffer;
+//
+//	ID3D11VertexShader* SKYMAP_VS;
+//	ID3D11PixelShader* SKYMAP_PS;
+//	ID3D10Blob* SKYMAP_VS_Buffer;
+//	ID3D10Blob* SKYMAP_PS_Buffer;
+//
+//	ID3D11ShaderResourceView* smrv;
+//
+//	ID3D11DepthStencilState* DSLessEqual;
+//	ID3D11RasterizerState* RSCullNone;
+//
+//	int NumSphereVertices;
+//	int NumSphereFaces;
+//
+//	XMMATRIX sphereWorld;
+//};
+//
+//#endif
