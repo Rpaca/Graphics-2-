@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: graphicsclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
+#include "PCH.h"
 #include "graphicsclass.h"
 
 
@@ -18,6 +19,8 @@ GraphicsClass::GraphicsClass()
 	m_Bitmap = 0;
 	m_Text = 0;
 	m_Input = 0;
+	m_numOfPolygons = 0;
+	//m_Skybox = 0;
 }
 
 
@@ -64,32 +67,57 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, -350.0f);
 
-	// Create the model object.
-	for (int i = 0; i < 5; i++)
-	{
-		m_Model[i] = new ModelClass;
+	const int NumOfModel = 3;
 
-		if (!m_Model)
+	WCHAR*	models[NumOfModel] = {
+		L"../Engine/data/Lamp.obj",
+		L"../Engine/data/Lamp.obj",
+		L"../Engine/data/Lamp.obj",
+	};
+	WCHAR* modelTextures[NumOfModel] = {
+		L"../Engine/data/Lamp.dds",
+		L"../Engine/data/Lamp.dds",
+		L"../Engine/data/Lamp.dds",
+	};
+
+	D3DXVECTOR3 positions[] = {
+		{ 0.0f, 150.0f, -700.0f},
+		{ 0.0f, 150.0f, -700.0f},
+		{ 286.0f, 12.5f, 208.0f },
+	};
+	D3DXVECTOR3 scales[] = {
+		{ 0.5f, 0.5f, 0.5f},
+		{ 1.0f, 1.0f, 1.0f},
+		{ 1.0f, 1.0f, 1.0f},
+	};
+
+	D3DXMATRIX objMat, scaleMat;
+	// Create the model object.
+	for (int i = 0; i < NumOfModel; ++i)
+	{
+		ModelClass* newModel = new ModelClass;
+		result = newModel->Initialize(m_D3D->GetDevice(), models[i], modelTextures[i]);
+		if (!result)
 		{
+			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
 		}
+		m_D3D->GetWorldMatrix(objMat);
+		D3DXMatrixIdentity(&scaleMat);
+		D3DXMatrixTranslation(&objMat, positions[i].x, positions[i].y, positions[i].z);
+		D3DXMatrixScaling(&scaleMat, scales[i].x, scales[i].y, scales[i].z);
+		D3DXMatrixMultiply(&objMat, &scaleMat, &objMat);
+
+		m_Models.push_back(newModel);
+		m_objMatrices.push_back(objMat);
 	}
 
+	//m_Skybox = new SkyboxClass;
+	//if (!m_Skybox)
+	//{
+	//	return false;
+	//}
 
-
-	// Initialize the model object.
-	result = m_Model[0]->Initialize(m_D3D->GetDevice(), "../Engine/Dog.obj", L"../Engine/data/Dog_diffuse.dds");
-	result = m_Model[1]->Initialize(m_D3D->GetDevice(), "../Engine/Cat.obj", L"../Engine/data/Cat_diffuse.dds");
-	result = m_Model[2]->Initialize(m_D3D->GetDevice(), "../Engine/Lamp.obj", L"../Engine/data/lamp.dds");
-	result = m_Model[3]->Initialize(m_D3D->GetDevice(), "../Engine/Skull.obj", L"../Engine/data/Skull.dds");
-	result = m_Model[4]->Initialize(m_D3D->GetDevice(), "../Engine/table.obj", L"../Engine/data/table.dds");
-
-
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
-		return false;
-	}
 
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
@@ -135,19 +163,19 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
-	// Create the bitmap object.
-	m_Bitmap = new BitmapClass;
-	if (!m_Bitmap)
-	{
-		return false;
-	}
-	// Initialize the bitmap object.
-	result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/seafloor.dds", screenWidth, screenHeight);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
-		return false;
-	}
+	//// Create the bitmap object.
+	//m_Bitmap = new BitmapClass;
+	//if (!m_Bitmap)
+	//{
+	//	return false;
+	//}
+	//// Initialize the bitmap object.
+	//result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/seafloor.dds", screenWidth, screenHeight);
+	//if (!result)
+	//{
+	//	MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+	//	return false;
+	//}
 
 
 	// Initialize a base view matrix with the camera for 2D user interface rendering.
@@ -189,14 +217,15 @@ void GraphicsClass::Shutdown()
 	}
 
 	// Release the model object.
-	for (int i = 0; i < 5; i++)
+	for (auto it = m_Models.begin(); it != m_Models.end(); )
 	{
-		if (m_Model[i])
+		if (*it)
 		{
-			m_Model[i]->Shutdown();
-			delete m_Model[i];
-			m_Model[i] = 0;
+			(*it)->Shutdown();
+			delete (*it);
+			it = m_Models.erase(it);
 		}
+		else ++it;
 	}
 
 	// Release the camera object.
@@ -214,13 +243,14 @@ void GraphicsClass::Shutdown()
 		m_D3D = 0;
 	}
 
-	//Release the bitmap object.
-	if (m_Bitmap)
-	{
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
-	}
+	////Release the bitmap object.
+	//if (m_Bitmap)
+	//{
+	//	m_Bitmap->Shutdown();
+	//	delete m_Bitmap;
+	//	m_Bitmap = 0;
+	//}
+
 	// Release the texture shader object.
 	if (m_TextureShader)
 	{
@@ -261,19 +291,43 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
 
 
+
 	// Set the frames per second.
-	result = m_Text->SetFps(fps, m_D3D->GetDeviceContext());
+	result = m_Text->SetFPS(fps, m_D3D->GetDeviceContext());
 	if (!result)
 	{
 		return false;
 	}
 	// Set the cpu usage.
-	result = m_Text->SetCpu(cpu, m_D3D->GetDeviceContext());
+	result = m_Text->SetCPU(cpu, m_D3D->GetDeviceContext());
 	if (!result)
 	{
 		return false;
 	}
 
+	result = m_Text->SetNumOfObjects(m_Models.size(), m_D3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
+	m_numOfPolygons = 0;
+	for (auto model : m_Models) m_numOfPolygons += model->GetPolygonsCount();
+	result = m_Text->SetNumOfPolygons(m_numOfPolygons, m_D3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
+
+	D3DXVECTOR3 position = m_Camera->GetPosition();
+	float height;
+
+	result = m_Text->SetPosition(position, m_D3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
 
 	// Render the graphics scene.
 	result = Render(rotation);
@@ -342,19 +396,19 @@ bool GraphicsClass::Render(float rotation)
 	// Turn off the Z buffer to begin all 2D rendering.
 	m_D3D->TurnZBufferOff();
 
-	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 0, 0);
-	if (!result)
-	{
-		return false;
-	}
+	//// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 0, 0);
+	//if (!result)
+	//{
+	//	return false;
+	//}
 
-	// Render the bitmap with the texture shader.
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
-	if (!result)
-	{
-		return false;
-	}
+	//// Render the bitmap with the texture shader.
+	//result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+	//if (!result)
+	//{
+	//	return false;
+	//}
 
 	// Turn off alpha blending after rendering the text.
 	m_D3D->TurnOffAlphaBlending();
@@ -363,15 +417,15 @@ bool GraphicsClass::Render(float rotation)
 
 
 	//Render the model using the texture shader.ceiling
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < m_Models.size(); i++)
 	{
 		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-		m_Model[i]->Render(m_D3D->GetDeviceContext());
+		m_Models[i]->Render(m_D3D->GetDeviceContext());
 
 
 		// Render the model using the light shader.
-		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model[i]->GetIndexCount(), m_Matrix[i], viewMatrix, projectionMatrix,
-			m_Model[i]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[i]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
+			m_Models[i]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
 			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 		
 		if (!result)

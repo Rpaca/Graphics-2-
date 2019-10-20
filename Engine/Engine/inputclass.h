@@ -5,44 +5,6 @@
 #define _INPUTCLASS_H_
 
 
-//////////////
-// INCLUDES //
-//////////////
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dx11.lib")
-#pragma comment(lib, "d3dx10.lib")
-#pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "pdh.lib")
-#pragma comment(lib, "dsound.lib")
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dinput8.lib")
-
-#include <Windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <mmsystem.h>
-#include <Pdh.h>
-#include <dxgi.h>
-#include <d3dcommon.h>
-#include <d3d11.h>
-#include <d3dx10math.h>
-#include <d3dx11tex.h>
-#include <d3dx11async.h>
-#include <dinput.h>
-#include <dsound.h>
-
-#include <fstream>
-#include <string>
-#include <vector>
-#include <map>
-
-using std::ifstream;
-using std::ofstream;
-using std::string;
-using std::vector;
-using std::map;
-
 
 enum class KeyCode {
 	W, A, S, D,

@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: modelclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
+#include "PCH.h"
 #include "modelclass.h"
 
 
@@ -23,7 +24,7 @@ ModelClass::~ModelClass()
 }
 
 
-bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device, WCHAR* modelFilename, WCHAR* textureFilename)
 {
 	bool result;
 	int vertexCount, textureCount, normalCount, faceCount;
@@ -89,6 +90,10 @@ ID3D11ShaderResourceView* ModelClass::GetTexture()
 	return m_Texture->GetTexture();
 }
 
+int ModelClass::GetPolygonsCount()
+{
+	return m_polygonsCount;
+}
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {
@@ -255,7 +260,7 @@ void ModelClass::ReleaseTexture()
 }
 
 
-bool ModelClass::LoadModel(char* filename)
+bool ModelClass::LoadModel(WCHAR* filename)
 {
 	ifstream fin;
 	char input;
@@ -430,7 +435,7 @@ bool ModelClass::LoadModel(char* filename)
 	// Set the number of indices to be the same as the vertex count.
 	m_vertexCount = faceCount * 3;
 	m_indexCount = m_vertexCount;
-
+	m_polygonsCount = faceCount;
 
 
 

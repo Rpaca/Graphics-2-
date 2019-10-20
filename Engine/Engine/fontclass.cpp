@@ -1,6 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Filename: fontclass.cpp
 ///////////////////////////////////////////////////////////////////////////////
+#include "PCH.h"
 #include "fontclass.h"
 
 
@@ -159,7 +160,7 @@ ID3D11ShaderResourceView* FontClass::GetTexture()
 }
 
 
-void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, float drawY)
+void FontClass::BuildVertexArray(void* vertices, const char* sentence, float drawX, float drawY)
 {
 	VertexType* vertexPtr;
 	int numLetters, index, i, letter;

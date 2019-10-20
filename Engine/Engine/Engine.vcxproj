@@ -94,6 +94,7 @@
     <ClCompile Include="lightshaderclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="modelclass.cpp" />
+    <ClCompile Include="PCH.cpp" />
     <ClCompile Include="skyboxclass.cpp" />
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textclass.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="lightclass.h" />
     <ClInclude Include="lightshaderclass.h" />
     <ClInclude Include="modelclass.h" />
+    <ClInclude Include="PCH.h" />
     <ClInclude Include="skyboxclass.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textclass.h" />
@@ -128,6 +130,11 @@
     <None Include="light.vs" />
     <None Include="texture.ps" />
     <None Include="texture.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Effects.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

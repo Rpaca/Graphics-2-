@@ -5,12 +5,6 @@
 #define _BITMAPCLASS_H_
 
 
-//////////////
-// INCLUDES //
-//////////////
-#include <d3d11.h>
-#include <d3dx10math.h>
-
 
 ///////////////////////
 // MY CLASS INCLUDES //

@@ -5,15 +5,6 @@
 #define _FONTCLASS_H_
 
 
-//////////////
-// INCLUDES //
-//////////////
-#include <d3d11.h>
-#include <d3dx10math.h>
-#include <fstream>
-using namespace std;
-
-
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
@@ -48,7 +39,7 @@ public:
 
 	ID3D11ShaderResourceView* GetTexture();
 
-	void BuildVertexArray(void*, char*, float, float);
+	void BuildVertexArray(void*, const char*, float, float);
 
 private:
 	bool LoadFontData(char*);
