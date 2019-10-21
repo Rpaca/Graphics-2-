@@ -23,11 +23,11 @@ public:
 private:
 	ID3D11Buffer* squareIndexBuffer;
 	ID3D11Buffer* squareVertBuffer;
-	XMMATRIX groundWorld;
+	D3DXMATRIX groundWorld;
 
-	XMMATRIX Rotationx;
-	XMMATRIX Rotationy;
-	XMMATRIX Rotationz;
+	D3DXMATRIX Rotationx;
+	D3DXMATRIX Rotationy;
+	D3DXMATRIX Rotationz;
 	ID3D11InputLayout* vertLayout;
 	ID3D11VertexShader* VS;
 	ID3D11PixelShader* PS;
@@ -113,8 +113,8 @@ private:
 		Light  light;
 	};
 
-	XMMATRIX camView;
-	XMMATRIX camProjection;
+	D3DXMATRIX camView;
+	D3DXMATRIX camProjection;
 };
 
 #endif

@@ -28,49 +28,11 @@ SkyboxClass::~SkyboxClass()
 
 //스카이 박스 정보 초기화
 bool SkyboxClass::Initialize(int screenWidth, int screenHeight, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
-{	//Camera information
-	XMVECTOR camPosition = XMVectorSet(0.0f, 5.0f, -8.0f, 0.0f);
-	XMVECTOR camTarget = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	XMVECTOR camUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	//Set the View matrix
-	camView = XMMatrixLookAtLH(camPosition, camTarget, camUp);
-
-	//Set the Projection matrix
-	camProjection = XMMatrixPerspectiveFovLH(0.4f*3.14f, screenWidth / screenHeight, 1.0f, 1000.0f);
-
+{	
 
 	CreateSphere(device, 10, 10);
+	ShaderInitialize(device, deviceContext);
 
-	D3D11_BUFFER_DESC cbbd;
-	ZeroMemory(&cbbd, sizeof(D3D11_BUFFER_DESC));
-	cbbd.Usage = D3D11_USAGE_DEFAULT;
-	cbbd.ByteWidth = sizeof(cbPerObject);
-	cbbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbbd.CPUAccessFlags = 0;
-	cbbd.MiscFlags = 0;
-	device->CreateBuffer(&cbbd, NULL, &cbPerObjectBuffer);
-
-	D3D11_DEPTH_STENCIL_DESC dssDesc;
-	ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-	dssDesc.DepthEnable = true;
-	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
-
-	D3D11_RASTERIZER_DESC cmdesc;
-
-	ZeroMemory(&cmdesc, sizeof(D3D11_RASTERIZER_DESC));
-	cmdesc.FillMode = D3D11_FILL_SOLID;
-	cmdesc.CullMode = D3D11_CULL_BACK;
-	cmdesc.FrontCounterClockwise = true;
-	device->CreateRasterizerState(&cmdesc, &CCWcullMode);
-
-	cmdesc.FrontCounterClockwise = false;
-
-	device->CreateRasterizerState(&cmdesc, &CWcullMode);
-
-	cmdesc.CullMode = D3D11_CULL_NONE;
-	device->CreateRasterizerState(&cmdesc, &RSCullNone);
 
 	///////////////**************new**************////////////////////
 	// Tell D3D we will be loading a cube texture
@@ -111,8 +73,54 @@ bool SkyboxClass::Initialize(int screenWidth, int screenHeight, ID3D11Device* de
 	device->CreateShaderResourceView(SMTexture, &SMViewDesc, &smrv);
 	///////////////**************new**************////////////////////
 
-	ShaderInitialize(device, deviceContext);
+	D3D11_BUFFER_DESC cbbd;
+	ZeroMemory(&cbbd, sizeof(D3D11_BUFFER_DESC));
+	cbbd.Usage = D3D11_USAGE_DEFAULT;
+	cbbd.ByteWidth = sizeof(cbPerObject);
+	cbbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbbd.CPUAccessFlags = 0;
+	cbbd.MiscFlags = 0;
+	device->CreateBuffer(&cbbd, NULL, &cbPerObjectBuffer);
 
+	D3D11_DEPTH_STENCIL_DESC dssDesc;
+	ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	dssDesc.DepthEnable = true;
+	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
+
+	D3D11_RASTERIZER_DESC cmdesc;
+
+	ZeroMemory(&cmdesc, sizeof(D3D11_RASTERIZER_DESC));
+	cmdesc.FillMode = D3D11_FILL_SOLID;
+	cmdesc.CullMode = D3D11_CULL_BACK;
+	cmdesc.FrontCounterClockwise = true;
+	device->CreateRasterizerState(&cmdesc, &CCWcullMode);
+
+	cmdesc.FrontCounterClockwise = false;
+
+
+
+	// Describe the Sample State
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	//
+	device->CreateSamplerState(&sampDesc, &CubesTexSamplerState);
+	//
+
+
+	device->CreateRasterizerState(&cmdesc, &CWcullMode);
+
+	cmdesc.CullMode = D3D11_CULL_NONE;
+	device->CreateRasterizerState(&cmdesc, &RSCullNone);
 
 	return true;
 }
@@ -146,7 +154,8 @@ bool SkyboxClass::ShaderInitialize(ID3D11Device* device, ID3D11DeviceContext* de
 	return true;
 }
 
-
+// 구의 형태가 잘 나오는 것을 보면 createsphere의 문제는 아님
+// 텍스쳐가 잘못 씌어진 것이기 때문에 버텍스 쉐이더, 픽셀 쉐이더, hlsl 의심
 void SkyboxClass::CreateSphere(ID3D11Device* device, int LatLines, int LongLines)
 {
 	NumSphereVertices = ((LatLines - 2) * LongLines) + 2;
@@ -157,7 +166,8 @@ void SkyboxClass::CreateSphere(ID3D11Device* device, int LatLines, int LongLines
 
 	std::vector<Vertex> vertices(NumSphereVertices);
 
-	XMVECTOR currVertPos = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	D3DXVECTOR3 currVertPos(0.0f, 0.0f, 1.0f);
+	D3DXVECTOR3 normalPos(0.0f, 0.0f, 1.0f);
 
 	vertices[0].pos.x = 0.0f;
 	vertices[0].pos.y = 0.0f;
@@ -166,16 +176,16 @@ void SkyboxClass::CreateSphere(ID3D11Device* device, int LatLines, int LongLines
 	for (DWORD i = 0; i < LatLines - 2; ++i)
 	{
 		spherePitch = (i + 1) * (3.14 / (LatLines - 1));
-		Rotationx = XMMatrixRotationX(spherePitch);
+		D3DXMatrixRotationX(&Rotationx, spherePitch);
 		for (DWORD j = 0; j < LongLines; ++j)
 		{
 			sphereYaw = j * (6.28 / (LongLines));
-			Rotationy = XMMatrixRotationZ(sphereYaw);
-			currVertPos = XMVector3TransformNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), (Rotationx * Rotationy));
-			currVertPos = XMVector3Normalize(currVertPos);
-			vertices[i*LongLines + j + 1].pos.x = XMVectorGetX(currVertPos);
-			vertices[i*LongLines + j + 1].pos.y = XMVectorGetY(currVertPos);
-			vertices[i*LongLines + j + 1].pos.z = XMVectorGetZ(currVertPos);
+			D3DXMatrixRotationZ(&Rotationy, sphereYaw);
+			D3DXVec3TransformNormal(&currVertPos, &normalPos, &(Rotationx * Rotationy));
+			D3DXVec3Normalize(&currVertPos, &currVertPos);
+			vertices[i*LongLines + j + 1].pos.x = currVertPos.x;
+			vertices[i*LongLines + j + 1].pos.y = currVertPos.y;
+			vertices[i*LongLines + j + 1].pos.z = currVertPos.z;
 		}
 	}
 
@@ -273,37 +283,42 @@ void SkyboxClass::CreateSphere(ID3D11Device* device, int LatLines, int LongLines
 
 bool SkyboxClass::UpdatePos(D3DXVECTOR3 camPosition)
 {
-	XMMATRIX Scale;
-	XMMATRIX Translation;
+	D3DXMATRIX Scale;
+	D3DXMATRIX Translation;
 
-	//Reset cube1World
-	groundWorld = XMMatrixIdentity();
+	////Reset cube1World
+	//groundWorld = XMMatrixIdentity();
 
-	//Define cube1's world space matrix
-	Scale = XMMatrixScaling(500.0f, 10.0f, 500.0f);
-	Translation = XMMatrixTranslation(0.0f, 10.0f, 10.0f);
+	////Define cube1's world space mat rix
+	//Scale = XMMatrixScaling(500.0f, 10.0f, 500.0f);
+	//Translation = XMMatrixTranslation(0.0f, 10.0f, 10.0f);
 
-	//Set cube1's world space using the transformations
-	groundWorld = Scale * Translation;
+	////Set cube1's world space using the transformations
+	//groundWorld = Scale * Translation;
 
 	///////////////**************new**************////////////////////
 	//Reset sphereWorld
 	//sphereWorld = XMMatrixIdentity();
 
-	////Define sphereWorld's world space matrix
+	//Define sphereWorld's world space matrix
 	//Scale = XMMatrixScaling(50.0f, 50.0f, 50.0f);
-	////Make sure the sphere is always centered around camera
-	////Translation = XMMatrixTranslation(camPosition.x, camPosition.y, camPosition.z);
-	//Translation = XMMatrixTranslation(0.0f, 0.0f, -10.0f);
+	//Make sure the sphere is always centered around camera
+	//Translation = XMMatrixTranslation(camPosition.x, camPosition.y, camPosition.z);
+	//구가 이상하게 나타나고 움직일때 마다 확되되는건 SCALING 값이 작아였던 것
+	D3DXMatrixScaling(&Scale, 5000.0f, 5000.0f, 5000.0f); 
+	//D3DXMatrixTranslation(&Translation, camPosition.x, camPosition.y, camPosition.z);
+	D3DXMatrixTranslation(&Translation, camPosition.x, camPosition.y, camPosition.z);
 
-	////Set sphereWorld's world space using the transformations
-	//sphereWorld = Scale * Translation;
+	//Set sphereWorld's world space using the transformations
+	sphereWorld = Scale * Translation;
 	///////////////**************new**************////////////////////
 
 	return true;
 }
 
 
+// XMVECTOR to 3D3VECTOR
+// XMMATRIX to D3DXMATRIX
 void SkyboxClass::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
 {
 	D3DXMATRIX WVP;
@@ -311,19 +326,14 @@ void SkyboxClass::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMat
 	//Set the grounds index buffer;
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
+	
+
 
 	deviceContext->IASetIndexBuffer(sphereIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	deviceContext->IASetVertexBuffers(0, 1, &sphereVertBuffer, &stride, &offset);
 
-	//SetShaderParameters
-	// Set the world view projection matrix and send it to the constant buffer in effect file
-	//WVP = sphereWorld * camView * camProjection;
-	WVP = worldMatrix * viewMatrix * projectionMatrix;
 
-	//D3DXMatrixTranspose(WVP2, WVP);
-
-	//cbPerObj.WVP = XMMatrixTranspose(WVP);
-	//cbPerObj.World = XMMatrixTranspose(sphereWorld);
+	WVP = sphereWorld * viewMatrix * projectionMatrix;
 
 	D3DXMatrixTranspose(&cbPerObj.WVP, &WVP);
 	D3DXMatrixTranspose(&cbPerObj.World, &sphereWorld);
@@ -333,7 +343,7 @@ void SkyboxClass::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMat
 	deviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 	//Send our skymap resource view to pixel shader
 	deviceContext->PSSetShaderResources(0, 1, &smrv);
-	//d3d11DevCon->PSSetSamplers( 0, 1, &CubesTexSamplerState );
+	deviceContext->PSSetSamplers( 0, 1, &CubesTexSamplerState );
 
 	// Set the new VS and PS shaders
 	deviceContext->VSSetShader(SKYMAP_VS, 0, 0);

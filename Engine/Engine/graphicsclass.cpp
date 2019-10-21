@@ -5,10 +5,11 @@
 #include "graphicsclass.h"
 
 
-//코드의 문제점
-//1. 모델 갯수 변수를 한번에 변경 못함 -> vector를 사용한 수정 필요
-//2. 변환 백터 부분이 너무 복잡함 따라서 간략화 필요
-
+//개선 포인트
+//1. sky dome의 한면의 색이 이상하게 출력되는 문제 수정- 완료
+//2. 모델들을 하늘과 어울리는 오브젝트로 교체(새나 비행기)
+//3. 카메라가 움직일때 skydome이 잠깐 확대되는 현상 수정  - 완료
+//4. SKY DOME 메모리 해제 함수 생성
 GraphicsClass::GraphicsClass()
 {
 	m_D3D = 0;
@@ -66,30 +67,30 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 
 	// Set the initial position of the camera.
 	//m_Camera->SetPosition(0.0f, 0.0f, -350.0f);
-	m_Camera->SetPosition(0.0f, 0.0f, -500.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
 
 	const int NumOfModel = 3;
 
 	WCHAR*	models[NumOfModel] = {
-		L"../Engine/data/Lamp.obj",
-		L"../Engine/data/Lamp.obj",
-		L"../Engine/data/Lamp.obj",
+		L"../Engine/data/spaceship01.obj",
+		L"../Engine/data/spaceship02.obj",
+		L"../Engine/data/spaceship03.obj",
 	};
 	WCHAR* modelTextures[NumOfModel] = {
-		L"../Engine/data/Lamp.dds",
-		L"../Engine/data/Lamp.dds",
-		L"../Engine/data/Lamp.dds",
+		L"../Engine/data/spaceship01.dds",
+		L"../Engine/data/spaceship02.dds",
+		L"../Engine/data/spaceship03.dds",
 	};
 
 	D3DXVECTOR3 positions[] = {
 		{ 0.0f, 150.0f, -700.0f},
-		{ 0.0f, 150.0f, -700.0f},
+		{ 0.0f, 10.0f, -300.0f},
 		{ 286.0f, 12.5f, 208.0f },
 	};
 	D3DXVECTOR3 scales[] = {
 		{ 0.5f, 0.5f, 0.5f},
-		{ 1.0f, 1.0f, 1.0f},
-		{ 1.0f, 1.0f, 1.0f},
+		{ 10.0f, 10.0f, 10.0f},
+		{ 10.0f, 10.0f, 10.0f},
 	};
 
 	D3DXMATRIX objMat, scaleMat;
@@ -344,7 +345,6 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 
 	m_Skybox->UpdatePos(position);
 
-
 	return true;
 }
 
@@ -354,7 +354,6 @@ bool GraphicsClass::Render(float rotation)
 	D3DXMATRIX lampMatrixR, skullMatrixR, dogMatrixR, floorMatrixR, LeftWallMatrixR, MiddleWallMatrixR, RightWallMatrixR, CeilingMatrixR;
 
 	bool result;
-
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
