@@ -65,7 +65,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -350.0f);
+	//m_Camera->SetPosition(0.0f, 0.0f, -350.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -500.0f);
 
 	const int NumOfModel = 3;
 
@@ -341,7 +342,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 		return false;
 	}
 
-	//m_Skybox->UpdatePos(position);
+	m_Skybox->UpdatePos(position);
 
 
 	return true;

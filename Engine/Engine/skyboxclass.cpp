@@ -39,8 +39,6 @@ bool SkyboxClass::Initialize(int screenWidth, int screenHeight, ID3D11Device* de
 	camProjection = XMMatrixPerspectiveFovLH(0.4f*3.14f, screenWidth / screenHeight, 1.0f, 1000.0f);
 
 
-
-
 	CreateSphere(device, 10, 10);
 
 	D3D11_BUFFER_DESC cbbd;
@@ -283,7 +281,7 @@ bool SkyboxClass::UpdatePos(D3DXVECTOR3 camPosition)
 
 	//Define cube1's world space matrix
 	Scale = XMMatrixScaling(500.0f, 10.0f, 500.0f);
-	Translation = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
+	Translation = XMMatrixTranslation(0.0f, 10.0f, 10.0f);
 
 	//Set cube1's world space using the transformations
 	groundWorld = Scale * Translation;
@@ -293,10 +291,10 @@ bool SkyboxClass::UpdatePos(D3DXVECTOR3 camPosition)
 	sphereWorld = XMMatrixIdentity();
 
 	//Define sphereWorld's world space matrix
-	Scale = XMMatrixScaling(5.0f, 5.0f, 5.0f);
+	Scale = XMMatrixScaling(50.0f, 50.0f, 50.0f);
 	//Make sure the sphere is always centered around camera
 	//Translation = XMMatrixTranslation(camPosition.x, camPosition.y, camPosition.z);
-	Translation = XMMatrixTranslation(0.0f, 0.0f, -1.0f);
+	Translation = XMMatrixTranslation(0.0f, 0.0f, -10.0f);
 
 	//Set sphereWorld's world space using the transformations
 	sphereWorld = Scale * Translation;
@@ -306,7 +304,7 @@ bool SkyboxClass::UpdatePos(D3DXVECTOR3 camPosition)
 }
 
 
-void SkyboxClass::Render(ID3D11DeviceContext* deviceContext)
+void SkyboxClass::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
 {
 	XMMATRIX WVP;
 
@@ -319,7 +317,7 @@ void SkyboxClass::Render(ID3D11DeviceContext* deviceContext)
 
 	//SetShaderParameters
 	// Set the world view projection matrix and send it to the constant buffer in effect file
-	WVP = sphereWorld * camView * camProjection;
+	//WVP = sphereWorld * camView * camProjection;
 	cbPerObj.WVP = XMMatrixTranspose(WVP);
 	cbPerObj.World = XMMatrixTranspose(sphereWorld);
 	deviceContext->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
