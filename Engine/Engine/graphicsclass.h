@@ -17,7 +17,7 @@
 #include "textureshaderclass.h"
 #include "bitmapclass.h"
 #include "inputclass.h"
-//#include "skyboxclass.h"
+#include "skyboxclass.h"
 
 /////////////
 // GLOBALS //
@@ -54,7 +54,7 @@ private:
 	TextureShaderClass* m_TextureShader;
 	BitmapClass* m_Bitmap;
 	TextClass* m_Text;
-	//SkyboxClass* m_Skybox;
+	SkyboxClass* m_Skybox;
 	vector<D3DXMATRIX>	 m_objMatrices;
 	int					 m_numOfPolygons;
 };

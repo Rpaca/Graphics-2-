@@ -36,6 +36,7 @@
 #include <d3dx11async.h>
 #include <dinput.h>
 #include <dsound.h>
+#include <xnamath.h>
 
 #include <fstream>
 #include <string>

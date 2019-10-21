@@ -74,12 +74,11 @@ SKYMAP_VS_OUTPUT SKYMAP_VS(float3 inPos : POSITION, float2 inTexCoord : TEXCOORD
 	return output;
 }
 
-//float4 PS(VS_OUTPUT input) : SV_TARGET
-float4 main(VS_OUTPUT input) : SV_TARGET
+float4 PS(VS_OUTPUT input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 
-	float4 diffuse = ObjTexture.Sample( ObjSamplerState, input.TexCoord );
+	float4 diffuse = ObjTexture.Sample(ObjSamplerState, input.TexCoord);
 
 	float3 finalColor;
 
@@ -99,7 +98,7 @@ float4 SKYMAP_PS(SKYMAP_VS_OUTPUT input) : SV_Target
 
 float4 D2D_PS(VS_OUTPUT input) : SV_TARGET
 {
-	float4 diffuse = ObjTexture.Sample( ObjSamplerState, input.TexCoord );
+	float4 diffuse = ObjTexture.Sample(ObjSamplerState, input.TexCoord);
 
 	return diffuse;
 }

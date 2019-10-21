@@ -20,7 +20,7 @@ GraphicsClass::GraphicsClass()
 	m_Text = 0;
 	m_Input = 0;
 	m_numOfPolygons = 0;
-	//m_Skybox = 0;
+	m_Skybox = 0;
 }
 
 
@@ -112,13 +112,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		m_objMatrices.push_back(objMat);
 	}
 
-	//m_Skybox = new SkyboxClass;
-	//if (!m_Skybox)
-	//{
-	//	return false;
-	//}
-
-
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
 	if (!m_LightShader)
@@ -195,6 +188,20 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 		return false;
 	}
+
+	m_Skybox = new SkyboxClass;
+	if (!m_Skybox)
+	{
+		return false;
+	}
+
+	result = m_Skybox->Initialize(screenWidth, screenHeight, m_D3D->GetDevice(), m_D3D->GetDeviceContext());
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the Skybox object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
@@ -290,8 +297,6 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
 	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
 
-
-
 	// Set the frames per second.
 	result = m_Text->SetFPS(fps, m_D3D->GetDeviceContext());
 	if (!result)
@@ -335,6 +340,10 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	{
 		return false;
 	}
+
+	//m_Skybox->UpdatePos(position);
+
+
 	return true;
 }
 
@@ -342,38 +351,6 @@ bool GraphicsClass::Render(float rotation)
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	D3DXMATRIX lampMatrixR, skullMatrixR, dogMatrixR, floorMatrixR, LeftWallMatrixR, MiddleWallMatrixR, RightWallMatrixR, CeilingMatrixR;
-	D3DXMATRIX dogMatrixT, catMatrixT, lampMatrixT, floorMatrixT, LeftWallMatrixT, MiddleWallMatrixT, RightWallMatrixT, CeilingMatrixT;
-	D3DXMATRIX floorMatrixS, CeilingMatrixS, LeftWallMatrixS, RightWallMatrixS, MiddleWallMatrixS;
-	D3DXMATRIX m_Matrix[8];
-
-	D3DXMatrixScaling(&floorMatrixS, 2, 2, 2);
-	D3DXMatrixRotationX(&floorMatrixR, 1.6);
-	D3DXMatrixTranslation(&floorMatrixT, 0, -100, -10);
-	m_Matrix[0] = floorMatrixS * floorMatrixR * floorMatrixT;
-
-	D3DXMatrixScaling(&LeftWallMatrixS, 2, 2, 2);
-	D3DXMatrixRotationY(&LeftWallMatrixR, -1.2);
-	D3DXMatrixTranslation(&LeftWallMatrixT, -100, 0, -10);
-	m_Matrix[1] = LeftWallMatrixS * LeftWallMatrixR * LeftWallMatrixT;
-
-	D3DXMatrixScaling(&MiddleWallMatrixS, 2, 2, 2);
-	D3DXMatrixRotationY(&MiddleWallMatrixR, 0);
-	D3DXMatrixTranslation(&MiddleWallMatrixT, 0, 0, 0);
-	m_Matrix[2] = MiddleWallMatrixS * MiddleWallMatrixR * MiddleWallMatrixT;
-
-	D3DXMatrixScaling(&RightWallMatrixS, 2, 2, 2);
-	D3DXMatrixRotationY(&RightWallMatrixR, 1.2);
-	D3DXMatrixTranslation(&RightWallMatrixT, 100, 0, -10);
-	m_Matrix[3] = RightWallMatrixS * RightWallMatrixR * RightWallMatrixT;
-
-	D3DXMatrixScaling(&CeilingMatrixS, 2, 2, 2);
-	D3DXMatrixRotationX(&CeilingMatrixR, -1.6);
-	D3DXMatrixTranslation(&CeilingMatrixT, 0, 100, -10);
-	m_Matrix[4] = CeilingMatrixS * CeilingMatrixR * CeilingMatrixT;
-
-	D3DXMatrixTranslation(&m_Matrix[5], -83.2f, -110.0f, -50.0f); // lamp
-	D3DXMatrixTranslation(&m_Matrix[6], +40.2f, -100.3f, -40.0f); // skull
-	D3DXMatrixTranslation(&m_Matrix[7], -0, -110, -40.0f); // dog
 
 	bool result;
 
@@ -383,6 +360,7 @@ bool GraphicsClass::Render(float rotation)
 
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render();
+
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	m_Camera->GetViewMatrix(viewMatrix);
@@ -409,11 +387,17 @@ bool GraphicsClass::Render(float rotation)
 	//{
 	//	return false;
 	//}
+		// Set the frames per second.
+
+	m_Skybox->Render(m_D3D->GetDeviceContext());
+
+
 
 	// Turn off alpha blending after rendering the text.
 	m_D3D->TurnOffAlphaBlending();
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
+
 
 
 	//Render the model using the texture shader.ceiling
@@ -457,3 +441,4 @@ bool GraphicsClass::Render(float rotation)
 
 	return true;
 }
+
