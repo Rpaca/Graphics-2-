@@ -288,16 +288,16 @@ bool SkyboxClass::UpdatePos(D3DXVECTOR3 camPosition)
 
 	///////////////**************new**************////////////////////
 	//Reset sphereWorld
-	sphereWorld = XMMatrixIdentity();
+	//sphereWorld = XMMatrixIdentity();
 
-	//Define sphereWorld's world space matrix
-	Scale = XMMatrixScaling(50.0f, 50.0f, 50.0f);
-	//Make sure the sphere is always centered around camera
-	//Translation = XMMatrixTranslation(camPosition.x, camPosition.y, camPosition.z);
-	Translation = XMMatrixTranslation(0.0f, 0.0f, -10.0f);
+	////Define sphereWorld's world space matrix
+	//Scale = XMMatrixScaling(50.0f, 50.0f, 50.0f);
+	////Make sure the sphere is always centered around camera
+	////Translation = XMMatrixTranslation(camPosition.x, camPosition.y, camPosition.z);
+	//Translation = XMMatrixTranslation(0.0f, 0.0f, -10.0f);
 
-	//Set sphereWorld's world space using the transformations
-	sphereWorld = Scale * Translation;
+	////Set sphereWorld's world space using the transformations
+	//sphereWorld = Scale * Translation;
 	///////////////**************new**************////////////////////
 
 	return true;
@@ -306,7 +306,7 @@ bool SkyboxClass::UpdatePos(D3DXVECTOR3 camPosition)
 
 void SkyboxClass::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, D3DXMATRIX projectionMatrix)
 {
-	XMMATRIX WVP;
+	D3DXMATRIX WVP;
 
 	//Set the grounds index buffer;
 	UINT stride = sizeof(Vertex);
@@ -318,8 +318,17 @@ void SkyboxClass::Render(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMat
 	//SetShaderParameters
 	// Set the world view projection matrix and send it to the constant buffer in effect file
 	//WVP = sphereWorld * camView * camProjection;
-	cbPerObj.WVP = XMMatrixTranspose(WVP);
-	cbPerObj.World = XMMatrixTranspose(sphereWorld);
+	WVP = worldMatrix * viewMatrix * projectionMatrix;
+
+	//D3DXMatrixTranspose(WVP2, WVP);
+
+	//cbPerObj.WVP = XMMatrixTranspose(WVP);
+	//cbPerObj.World = XMMatrixTranspose(sphereWorld);
+
+	D3DXMatrixTranspose(&cbPerObj.WVP, &WVP);
+	D3DXMatrixTranspose(&cbPerObj.World, &sphereWorld);
+
+
 	deviceContext->UpdateSubresource(cbPerObjectBuffer, 0, NULL, &cbPerObj, 0, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &cbPerObjectBuffer);
 	//Send our skymap resource view to pixel shader

@@ -18,7 +18,7 @@ public:
 	bool Initialize(int, int, ID3D11Device*, ID3D11DeviceContext* );
 	bool ShaderInitialize(ID3D11Device*, ID3D11DeviceContext*);
 	bool UpdatePos(D3DXVECTOR3);
-	void Render(ID3D11DeviceContext*);
+	void Render(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX);
 
 private:
 	ID3D11Buffer* squareIndexBuffer;
@@ -52,7 +52,7 @@ private:
 	int NumSphereVertices;
 	int NumSphereFaces;
 
-	XMMATRIX sphereWorld;
+	D3DXMATRIX sphereWorld;
 
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
@@ -85,8 +85,11 @@ private:
 	////Create effects constant buffer's structure//
 	struct cbPerObject
 	{
-		XMMATRIX  WVP;
-		XMMATRIX World;
+		//XMMATRIX  WVP;
+		//XMMATRIX World;
+
+		D3DXMATRIX  WVP;
+		D3DXMATRIX World;
 	};
 
 	cbPerObject cbPerObj;

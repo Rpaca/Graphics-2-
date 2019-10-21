@@ -390,7 +390,7 @@ bool GraphicsClass::Render(float rotation)
 	//}
 		// Set the frames per second.
 
-	m_Skybox->Render(m_D3D->GetDeviceContext());
+	m_Skybox->Render(m_D3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix);
 
 
 
