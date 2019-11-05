@@ -57,7 +57,7 @@ void CameraClass::Yaw(float radians)
 	}
 	D3DXMATRIX rotation;
 	D3DXMatrixRotationAxis(&rotation, &m_up, radians);
-	//D3DXVec3TransformNormal(&m_right, &m_right, &rotation);
+	D3DXVec3TransformNormal(&m_right, &m_right, &rotation);
 	D3DXVec3TransformNormal(&m_look, &m_look, &rotation);
 }
 
@@ -81,7 +81,7 @@ void CameraClass::Pitch(float radians)
 
 	D3DXMATRIX rotation;
 	D3DXMatrixRotationAxis(&rotation, &m_right, radians);
-	//D3DXVec3TransformNormal(&m_up, &m_up, &rotation);
+	D3DXVec3TransformNormal(&m_up, &m_up, &rotation);
 	D3DXVec3TransformNormal(&m_look, &m_look, &rotation);
 }
 

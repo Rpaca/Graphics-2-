@@ -66,34 +66,42 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 	// Set the initial position of the camera.
-	//m_Camera->SetPosition(0.0f, 0.0f, -350.0f);
-	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
+	m_Camera->SetPosition(-90.0f, 20.0f, 0.0f);
 
-	const int NumOfModel = 3;
+	const int NumOfModel = 4;
 
 	WCHAR*	models[NumOfModel] = {
-		L"../Engine/data/spaceship01.obj",
-		L"../Engine/data/spaceship02.obj",
-		L"../Engine/data/spaceship03.obj",
+		L"../Engine/data/Pokemon.obj",
+		L"../Engine/data/ball.obj",
+		L"../Engine/data/Tennis-Court.obj",
+		L"../Engine/data/Pokemon.obj"
 	};
 	WCHAR* modelTextures[NumOfModel] = {
-		L"../Engine/data/spaceship01.dds",
-		L"../Engine/data/spaceship02.dds",
-		L"../Engine/data/spaceship03.dds",
+		L"../Engine/data/Pokemon.dds",
+		L"../Engine/data/ball.dds",
+		L"../Engine/data/TennisCourt.dds",
+		L"../Engine/data/Pokemon.dds"
 	};
 
 	D3DXVECTOR3 positions[] = {
-		{ 0.0f, 150.0f, -700.0f},
-		{ 0.0f, 10.0f, -300.0f},
-		{ 286.0f, 12.5f, 208.0f },
-	};
-	D3DXVECTOR3 scales[] = {
-		{ 0.5f, 0.5f, 0.5f},
-		{ 10.0f, 10.0f, 10.0f},
-		{ 10.0f, 10.0f, 10.0f},
+		{ -60.0f, 1.0f, 0.0f},
+		{ 0.0f, 2.2f, 0.0f},
+		{ 0.0f, 0.2f, 0.0f },
+		{ 50.0f, 1.0f, 0.0f}
 	};
 
-	D3DXMATRIX objMat, scaleMat;
+	D3DXVECTOR3 scales[] = {
+		{ 3.2f, 3.2f, 3.2f},
+		{ 0.3f, 0.3f, 0.3f},
+		{ 1.0f, 1.0f, 1.0f},
+		{ 7.0f, 7.0f, 7.0f}
+	};
+
+	float Rotation[] = {
+		1.5708f, 0.0f, 0.0f,-1.5708f
+	};
+
+	D3DXMATRIX objMat, scaleMat, rotationMat;
 	// Create the model object.
 	for (int i = 0; i < NumOfModel; ++i)
 	{
@@ -108,7 +116,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		D3DXMatrixIdentity(&scaleMat);
 		D3DXMatrixTranslation(&objMat, positions[i].x, positions[i].y, positions[i].z);
 		D3DXMatrixScaling(&scaleMat, scales[i].x, scales[i].y, scales[i].z);
-		D3DXMatrixMultiply(&objMat, &scaleMat, &objMat);
+		D3DXMatrixRotationY(&rotationMat, Rotation[i]);
+		D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
+		D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
 
 		m_Models.push_back(newModel);
 		m_objMatrices.push_back(objMat);
@@ -137,9 +147,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 	// Initialize the light object.
-	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_Light->SetAmbientColor(0.50f, 0.50f, 0.50f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetDirection(-30.0f, -10.0f, 0.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
 
@@ -204,6 +214,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+	m_Camera->Yaw(1.5708f);
+	m_Camera->Pitch(0.2f);
 	return true;
 }
 
@@ -294,10 +306,33 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	m_Camera->Pitch(deltaY * frameTime * 0.00018f);
 
 	
-	if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
+	/*if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
 	if (m_Input->GetKey(KeyCode::A)) m_Camera->Strafe(-dir * frameTime);
 	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
-	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
+	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);*/
+
+	//if (m_Input->GetKey(KeyCode::A)) m_Models[0]->TranslateModel(-dir * frameTime);
+	//if (m_Input->GetKey(KeyCode::D)) m_Models[0]->TranslateModel(dir * frameTime);
+
+
+	if (m_Input->GetKey(KeyCode::A))
+	{
+		D3DXMATRIX objMat;
+		D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, 0.2f);
+		D3DXMatrixMultiply(&m_objMatrices[0], &m_objMatrices[0], &objMat);
+	}
+
+	if (m_Input->GetKey(KeyCode::D)) 
+	{
+		D3DXMATRIX objMat;
+		D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, -0.2f);
+		D3DXMatrixMultiply(&m_objMatrices[0], &m_objMatrices[0], &objMat);
+	}
+
+
+
+
+
 
 	// Set the frames per second.
 	result = m_Text->SetFPS(fps, m_D3D->GetDeviceContext());

@@ -497,6 +497,10 @@ bool ModelClass::LoadModel(WCHAR* filename)
 	return true;
 }
 
+void ModelClass :: TranslateModel(float units)
+{
+	
+}
 
 void ModelClass::ReleaseModel()
 {

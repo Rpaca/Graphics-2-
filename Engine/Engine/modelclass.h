@@ -56,6 +56,7 @@ public:
 	bool Initialize(ID3D11Device*, WCHAR*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
+	void  TranslateModel(float units);
 
 	int GetIndexCount();
 	int GetPolygonsCount();

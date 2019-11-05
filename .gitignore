@@ -57,3 +57,17 @@ Engine/.vs/Engine/v15/ipch/AutoPCH/a17a7c22e7547495/GRAPHICSCLASS.ipch
 Engine/.vs/Engine/v15/ipch/AutoPCH/47e002f2cb59e4e4/SKYBOXCLASS.ipch
 Engine/.vs/Engine/v15/Browse.VC.opendb
 Engine/.vs/Engine/v15/ipch/AutoPCH/dd7a0444e08c3abf/TEXTURECLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/12e41d2460f6a0b/FONTCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/1b48ea4725f62f5e/INPUTCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/214a69c67e470caa/FONTSHADERCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/2b2add8d26fe3aee/CPUCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/47e002f2cb59e4e4/SKYBOXCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/4f52b9c63a1d2de/LIGHTCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/4fa2a7f75a68d7f6/CPUCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/600c24156bd6ea95/MAIN.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/9748e53c24f0c733/BITMAPCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/a17a7c22e7547495/GRAPHICSCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/bbb05366b8422ae5/SYSTEMCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/bd5d1030477e5cab/D3DCLASS.ipch
+Engine/.vs/Engine/v15/ipch/AutoPCH/f175c53f9091e4d1/CAMERACLASS.ipch
+*.ipch
