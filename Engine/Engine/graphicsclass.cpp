@@ -6,9 +6,6 @@
 
 
 //개선 포인트
-//1. sky dome의 한면의 색이 이상하게 출력되는 문제 수정- 완료
-//2. 모델들을 하늘과 어울리는 오브젝트로 교체(새나 비행기)
-//3. 카메라가 움직일때 skydome이 잠깐 확대되는 현상 수정  - 완료
 //4. SKY DOME 메모리 해제 함수 생성
 GraphicsClass::GraphicsClass()
 {
@@ -71,38 +68,75 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(-90.0f, 20.0f, 0.0f);
 
-	const int NumOfModel = 4;
+	const int NumOfModel = 8;
 
 	WCHAR*	models[NumOfModel] = {
 		L"../Engine/data/Tennis-Court.obj",
-		L"../Engine/data/Pokemon.obj",
+
 		L"../Engine/data/ball.obj",
+
+		L"../Engine/data/wall.obj",
+		L"../Engine/data/wall.obj",
+		L"../Engine/data/wall.obj",
+		L"../Engine/data/wall.obj",
+
+		L"../Engine/data/Pokemon.obj",
 		L"../Engine/data/Pokemon.obj"
+
+
 	};
 	WCHAR* modelTextures[NumOfModel] = {
 		L"../Engine/data/TennisCourt.dds",
-		L"../Engine/data/Pokemon.dds",
+
 		L"../Engine/data/ball.dds",
+
+		L"../Engine/data/wall.dds",
+		L"../Engine/data/wall.dds",
+		L"../Engine/data/wall.dds",
+		L"../Engine/data/wall.dds",
+
+		L"../Engine/data/Pokemon.dds",
 		L"../Engine/data/Pokemon.dds"
 	};
 
 	D3DXVECTOR3 positions[] = {
 		{ 0.0f, 0.0f, 0.0f },
-		{ -60.0f, 0.0f, 0.0f},
+
 		{ 0.0f, 2.2f, 0.0f},
+
+		{ -43.0f, 10.0f, -45.0f },//R
+		{ -43.0f, 10.0f, 45.0f }, //L
+
+		{ -70.0f, 10.0f, 33.0f }, // B
+		{ 70.0f, 10.0f, 33.0f }, //F
+
+		{ -60.0f, 0.0f, 0.0f},
 		{ 50.0f, 0.2f, 0.0f}
 	};
 
 	D3DXVECTOR3 scales[] = {
 		{ 1.0f, 1.0f, 1.0f},
-		{ 3.2f, 3.2f, 3.2f},
+
 		{ 0.3f, 0.3f, 0.3f},
+		
+		{0.5f, 0.2f, 0.5f},
+		{0.5f, 0.2f, 0.5f},
+		{0.35f, 0.2f, 0.35f},
+		{0.35f, 0.2f, 0.35f},
+
+
+		{ 3.2f, 3.2f, 3.2f},
 		{ 7.0f, 7.0f, 7.0f}
 	};
 
 	float Rotation[] = {
-		0.0f,1.5708f, 0.0f,-1.5708f
+		0.0f, 
+		0.0f, 
+		0.0f,  0.0f, 
+		1.5708f, 1.5708f,
+		1.5708f,-1.5708f
 	};
+
 
 
 	D3DXMATRIX objMat, scaleMat, rotationMat;
@@ -124,9 +158,18 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
 		D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
 
+
 		m_Models.push_back(newModel);
 		m_objMatrices.push_back(objMat);
+
+		m_Models[i]->scalingCollison(scales[i]);
+		m_Models[i]->rotationCollison(Rotation[i]);
+		m_Models[i]->translateCollison(positions[i]);
+	
 	}
+
+
+
 
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
@@ -340,13 +383,59 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	int dir = 1;
 	int deltaX, deltaY;
 	static float delay = 0.0f;
+	D3DXMATRIX forward;
+
 
 	// Run the frame processing for the particle system.
 	m_Input->GetMouseDeltaPosition(deltaX, deltaY);
 	m_Camera->Yaw(deltaX * frameTime * 0.00018f);
 	m_Camera->Pitch(deltaY * frameTime * 0.00018f);
 
-	
+	//오브젝트 이동
+	D3DXVECTOR3 A = {m_Models[1]->speed*m_Models[1]->forward.x, m_Models[2]->forward.y, m_Models[1]->forward.z };
+	D3DXMatrixTranslation(&forward, m_Models[1]->speed*m_Models[1]->forward.x, m_Models[1]->forward.y, m_Models[1]->forward.z);
+	D3DXMatrixMultiply(&m_objMatrices[1], &m_objMatrices[1], &forward);
+	m_Models[1]->translateCollison(A);
+
+
+	//오브젝트 충돌
+	if (m_Models[1]->AABBToAABB(m_Models[2]))//R
+	{
+		m_Models[1]->reflect({0,0,-1});
+	}
+	//오브젝트 충돌
+	if (m_Models[1]->AABBToAABB(m_Models[3]))//L
+	{
+		m_Models[1]->reflect({ 0,0,1 });
+	}
+
+	//오브젝트 충돌
+	if (m_Models[1]->AABBToAABB(m_Models[4]))//B
+	{
+		m_Models[1]->reflect({ 1,0,0 });
+	}
+
+	//오브젝트 충돌
+	if (m_Models[1]->AABBToAABB(m_Models[5]))//F
+	{
+		m_Models[1]->reflect({ -1,0,0 });
+	}
+
+
+	//오브젝트 충돌
+	if (m_Models[1]->AABBToAABB(m_Models[6]))//B
+	{
+		m_Models[1]->reflect({ 1,0,0 });
+	}
+
+	//오브젝트 충돌
+	if (m_Models[1]->AABBToAABB(m_Models[7]))//F
+	{
+		m_Models[1]->reflect({ -1,0,0 });
+	}
+
+
+
 	if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
 	if (m_Input->GetKey(KeyCode::A)) m_Camera->Strafe(-dir * frameTime);
 	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
@@ -356,18 +445,24 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKey(KeyCode::LEFTARROW)&& playerPosZ<100)
 	{
 		D3DXMATRIX objMat;
+		D3DXVECTOR3 position = { 0.0f, 0.0f, 0.2f };
 		D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, 0.2f);
-		D3DXMatrixMultiply(&m_objMatrices[1], &m_objMatrices[1], &objMat);
+		D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
 		playerPosZ++;
+		m_Models[6]->translateCollison(position);
 	}
 
+
+	
 
 	if (m_Input->GetKey(KeyCode::RIGHTARROW) && playerPosZ > -100)
 	{
 		D3DXMATRIX objMat;
+		D3DXVECTOR3 position = { 0.0f, 0.0f, -0.2f };
 		D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, -0.2f);
-		D3DXMatrixMultiply(&m_objMatrices[1], &m_objMatrices[1], &objMat);
+		D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
 		playerPosZ--;
+		m_Models[6]->translateCollison(position);
 	}
 
 
@@ -415,6 +510,8 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	{
 		return false;
 	}
+
+
 
 	m_Skybox->UpdatePos(position);
 
@@ -472,7 +569,6 @@ bool GraphicsClass::Render(float rotation)
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
-
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Models[0]->Render(m_D3D->GetDeviceContext());
 
@@ -493,7 +589,6 @@ bool GraphicsClass::Render(float rotation)
 		m_Models[i]->Render(m_D3D->GetDeviceContext());
 
 
-		// Render the model using the light shader.
 		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[i]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
 			m_Models[i]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
 			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
@@ -502,6 +597,8 @@ bool GraphicsClass::Render(float rotation)
 		{
 			return false;
 		}
+
+
 	}
 
 

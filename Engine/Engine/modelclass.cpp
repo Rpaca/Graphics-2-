@@ -11,6 +11,9 @@ ModelClass::ModelClass()
 	m_indexBuffer = 0;
 	m_Texture = 0;
 	m_model = 0;
+	forward = { 1,0,0 };
+	position = { 0,0,0 };
+	speed = 1.0f;
 }
 
 
@@ -74,7 +77,6 @@ void ModelClass::Render(ID3D11DeviceContext* deviceContext)
 {
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	RenderBuffers(deviceContext);
-
 	return;
 }
 
@@ -119,14 +121,36 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	// Load the vertex array and index array with data.
+
+
+
+
 	for (i = 0; i < m_vertexCount; i++)
 	{
+
 		vertices[i].position = D3DXVECTOR3(m_model[i].x, m_model[i].y, m_model[i].z);
 		vertices[i].texture = D3DXVECTOR2(m_model[i].tu, m_model[i].tv);
 		vertices[i].normal = D3DXVECTOR3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
 
+		if (i == 0)
+		{
+			vMin = vertices[i].position;
+			vMax = vertices[i].position;
+		}
+
+		vMin.x = min(vMin.x, m_model[i].x);
+		vMin.y = min(vMin.y, m_model[i].y);
+		vMin.z = min(vMin.z, m_model[i].z);
+
+
+		vMax.x = max(vMax.x, m_model[i].x);
+		vMax.y = max(vMax.y, m_model[i].y);
+		vMax.z = max(vMax.z, m_model[i].z);
+
 		indices[i] = i;
+
+		//1.collison을 초기화에서 만들고 이동할때마다 변환하기
+		//2.collison 생성을 매순간마다하고
 	}
 
 	// Set up the description of the static vertex buffer.
@@ -511,4 +535,74 @@ void ModelClass::ReleaseModel()
 	}
 
 	return;
+}
+
+
+//true면 충돌함
+bool ModelClass::AABBToAABB(ModelClass* pAABB)
+{
+	//x축에대하여
+	if (vMax.x < pAABB->vMin.x ||
+		vMin.x > pAABB->vMax.x)
+		return false;
+
+
+	//y축에대하여
+	if (vMax.y < pAABB->vMin.y ||
+		vMin.y > pAABB->vMax.y)
+		return false;
+
+
+	//z축에대하여
+	if (vMax.z < pAABB->vMin.z ||
+		vMin.z > pAABB->vMax.z)
+		return false;
+
+	return true;
+}
+
+void ModelClass::translateCollison(D3DXVECTOR3 position)
+{
+	D3DXMATRIX objMat;
+	D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+	D3DXVec3TransformCoord(&vMax, &vMax, &objMat);
+	D3DXVec3TransformCoord(&vMin, &vMin, &objMat);
+}
+
+
+void ModelClass::scalingCollison(D3DXVECTOR3 scale)
+{
+	D3DXMATRIX scaleMat;
+	D3DXMatrixScaling(&scaleMat, scale.x, scale.y, scale.z);
+	D3DXVec3TransformCoord(&vMax, &vMax, &scaleMat);
+	D3DXVec3TransformCoord(&vMin, &vMin, &scaleMat);
+}
+
+void ModelClass::rotationCollison(float rotation)
+{
+	D3DXMATRIX rotationMay;
+	D3DXMatrixRotationY(&rotationMay, rotation);
+	D3DXVec3TransformCoord(&vMax, &vMax, &rotationMay);
+	D3DXVec3TransformCoord(&vMin, &vMin, &rotationMay);
+}
+
+
+//반사후 법선백터(방향백터)를 알수있음
+D3DXVECTOR3 ModelClass::reflect(D3DXVECTOR3 n)
+{
+	forward += {0.1,0,0.1}; // 랜덤 범위 설정 필요
+	D3DXVECTOR3 r;
+	r = forward + 2 *D3DXVec3Dot(&(-forward), &n) *n;
+	forward = r;
+	return r;
+}
+
+
+//getNormalVector
+D3DXVECTOR3 ModelClass::getVector()
+{
+	D3DXVECTOR3  yMin, xMin;
+
+
+	return yMin;
 }

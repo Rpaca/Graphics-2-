@@ -56,11 +56,24 @@ public:
 	bool Initialize(ID3D11Device*, WCHAR*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
-	void  TranslateModel(float units);
+	void TranslateModel(float units);
 
 	int GetIndexCount();
 	int GetPolygonsCount();
 	ID3D11ShaderResourceView* GetTexture();
+	D3DXVECTOR3 vMin, vMax;
+	bool AABBToAABB(ModelClass*);
+	void translateCollison(D3DXVECTOR3);
+	void scalingCollison(D3DXVECTOR3);
+	void rotationCollison(float);
+
+	D3DXVECTOR3 position;
+	D3DXVECTOR3 forward;
+	float speed;
+
+	D3DXVECTOR3 getVector();
+
+	D3DXVECTOR3 reflect(D3DXVECTOR3);
 
 
 private:
@@ -73,6 +86,8 @@ private:
 
 	bool LoadModel(WCHAR*);
 	void ReleaseModel();
+
+
 
 private:
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
