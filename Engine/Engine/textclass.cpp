@@ -606,6 +606,33 @@ bool TextClass::SetScreenSize(int screenWidth, int screenHeight, ID3D11DeviceCon
 	return true;
 }
 
+
+
+bool TextClass::SetScore(int playerScore, int enemyScore, ID3D11DeviceContext* deviceContext)
+{
+	char tempString[16];
+	char numString[16];
+	SentenceType *sentence;
+	bool result;
+	_itoa_s(playerScore, tempString, 10);
+	strcpy_s(numString, tempString);
+	strcat_s(numString, " : ");
+	_itoa_s(enemyScore, tempString, 10);
+	strcat_s(numString, tempString);
+
+	sentence = m_renderInfo[5];
+
+	// Update the sentence vertex buffer with the new string information.
+	result = UpdateSentence(sentence, numString,
+		sentence->x, sentence->y, 0.0f, 1.0f, 0.0f, deviceContext);
+	if (!result)
+	{
+		return false;
+	}
+	return true;
+}
+
+
 void TextClass::TurnOnOffRenderInfo()
 {
 	isEnableRenderInfo = !isEnableRenderInfo;

@@ -64,6 +64,24 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
+
+	// Create the sound object.
+	m_BGM = new Sound;
+	if (!m_BGM)
+	{
+		return false;
+	}
+	// Initialize the sound object.
+	result = m_BGM->Initialize(m_hwnd, "../Engine/data/BGM.wav");
+	if (!result)
+	{
+		MessageBox(m_hwnd, L"Could not initialize Direct Sound.", L"Error", MB_OK);
+		return false;
+	}
+
+
+	m_BGM->PlayWaveFile(-1000, true);
+
 	// Create the fps object.
 	m_Fps = new FpsClass;
 	if (!m_Fps)
@@ -115,6 +133,14 @@ void SystemClass::Shutdown()
 	{
 		delete m_Input;
 		m_Input = 0;
+	}
+
+	// Release the sound object.
+	if (m_BGM)
+	{
+		m_BGM->Shutdown();
+		delete m_BGM;
+		m_BGM = 0;
 	}
 
 	// Release the timer object.
@@ -280,8 +306,8 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	else
 	{
 		// If windowed then set it to 800x600 resolution.
-		screenWidth  = 800;
-		screenHeight = 600;
+		screenWidth  = 1920;
+		screenHeight = 1080;
 
 		// Place the window in the middle of the screen.
 		posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth)  / 2;

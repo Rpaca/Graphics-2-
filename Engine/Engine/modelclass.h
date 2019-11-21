@@ -61,20 +61,26 @@ public:
 	int GetIndexCount();
 	int GetPolygonsCount();
 	ID3D11ShaderResourceView* GetTexture();
-	D3DXVECTOR3 vMin, vMax;
+	D3DXVECTOR3 vMin, vMax, rMax, rMin;
 	bool AABBToAABB(ModelClass*);
 	void translateCollison(D3DXVECTOR3);
 	void scalingCollison(D3DXVECTOR3);
 	void rotationCollison(float);
+	D3DXMATRIX translatePosition(D3DXVECTOR3);
 
 	D3DXVECTOR3 position;
 	D3DXVECTOR3 forward;
+	float rotation;
+	D3DXVECTOR3 scale;
 	float speed;
 
 	D3DXVECTOR3 getVector();
 
 	D3DXVECTOR3 reflect(D3DXVECTOR3);
-
+	void newMatrixCollison(D3DXMATRIX*);
+	void getTransform(D3DXVECTOR3, float, D3DXVECTOR3);
+	void updateColliosnPos(D3DXVECTOR3);
+	D3DXMATRIX resetSetting();
 
 private:
 	bool InitializeBuffers(ID3D11Device*);

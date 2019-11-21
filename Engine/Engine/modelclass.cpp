@@ -11,9 +11,10 @@ ModelClass::ModelClass()
 	m_indexBuffer = 0;
 	m_Texture = 0;
 	m_model = 0;
-	forward = { 1,0,0 };
+	forward = {1,0,0 };
 	position = { 0,0,0 };
 	speed = 1.0f;
+	rMin = rMax = { 0,0,0 };
 }
 
 
@@ -561,12 +562,50 @@ bool ModelClass::AABBToAABB(ModelClass* pAABB)
 	return true;
 }
 
+
+// 절대 이동인줄 알았는데 이것도 상대 이동
 void ModelClass::translateCollison(D3DXVECTOR3 position)
 {
 	D3DXMATRIX objMat;
 	D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
 	D3DXVec3TransformCoord(&vMax, &vMax, &objMat);
 	D3DXVec3TransformCoord(&vMin, &vMin, &objMat);
+}
+
+
+D3DXMATRIX ModelClass::translatePosition(D3DXVECTOR3 pos)
+{
+	D3DXMATRIX objMat, scaleMat, rotationMat;
+	D3DXMatrixTranslation(&objMat, pos.x, pos.y, pos.z);
+	D3DXMatrixScaling(&scaleMat, scale.x, scale.y, scale.z);
+	D3DXMatrixRotationY(&rotationMat, rotation);
+	D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
+	D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
+
+	//translateCollison(pos);
+
+	vMin = vMin - position + pos;//충돌박스 이동
+	vMax = vMax - position + pos;
+
+	position = pos; // 좌표 업데이트
+
+	return objMat;
+}
+
+//상대이동
+void ModelClass::updateColliosnPos(D3DXVECTOR3 vec)
+{
+	position += vec;
+
+	vMin += vec;
+	vMax += vec;
+
+	if (rMin == rMax)
+	{
+		rMin = vMin;
+		rMax = vMax;
+	}
+
 }
 
 
@@ -580,20 +619,40 @@ void ModelClass::scalingCollison(D3DXVECTOR3 scale)
 
 void ModelClass::rotationCollison(float rotation)
 {
-	D3DXMATRIX rotationMay;
-	D3DXMatrixRotationY(&rotationMay, rotation);
-	D3DXVec3TransformCoord(&vMax, &vMax, &rotationMay);
-	D3DXVec3TransformCoord(&vMin, &vMin, &rotationMay);
+	//D3DXMATRIX rotationMay;
+	//D3DXMatrixRotationY(&rotationMay, rotation);
+	//D3DXVec3TransformCoord(&vMax, &vMax, &rotationMay);
+	//D3DXVec3TransformCoord(&vMin, &vMin, &rotationMay);
+
+	if (rotation == 0.0f)
+		return;
+	D3DXVECTOR3 max, min;
+	max = vMax;
+	min = vMin;
+	//vMax = { -vMax.z, vMax.y, -vMax.x };
+	//vMin = { -vMin.z, vMin.y, -vMin.x };
+	vMax = { -min.z, max.y, -min.x };
+	vMin = { -max.z, min.y, -max.x };
+}
+
+void ModelClass::newMatrixCollison(D3DXMATRIX* mat)
+{
+	D3DXVec3TransformCoord(&vMax, &vMax, mat);
 }
 
 
 //반사후 법선백터(방향백터)를 알수있음
 D3DXVECTOR3 ModelClass::reflect(D3DXVECTOR3 n)
 {
-	forward += {0.1,0,0.1}; // 랜덤 범위 설정 필요
+	//float x;
+	//x = -1 + rand() % 3;
+	//forward += {x*0.1,0,x*0.1f}; // 랜덤 범위 설정 필요
+
 	D3DXVECTOR3 r;
 	r = forward + 2 *D3DXVec3Dot(&(-forward), &n) *n;
+	D3DXVec3Normalize(&r, &r);
 	forward = r;
+	position += forward;
 	return r;
 }
 
@@ -606,3 +665,31 @@ D3DXVECTOR3 ModelClass::getVector()
 
 	return yMin;
 }
+
+
+//마지막 딱한판만 조지고 그래픽스 끝날때까지 밤세ㅐㅁ
+
+
+void ModelClass::getTransform(D3DXVECTOR3 pos, float rot, D3DXVECTOR3 scale)
+{
+	position = pos;
+	rotation = rot;
+	this->scale = scale;
+
+}
+
+//콜리더가 원위치로 돌아가지 않음
+D3DXMATRIX ModelClass::resetSetting()
+{
+	forward = { 1,0,0 };
+	getTransform({ 0, 2.2,0 }, rotation, scale);
+
+	vMin = rMin;
+	vMax = rMax;
+
+	return translatePosition({ 0,  2.2, 0 });
+}
+
+//마지막 점수판 관련
+//1. 앞뒤 벽에 다으면 점수가 증가
+//2. 공의 위치와 방향 초기화

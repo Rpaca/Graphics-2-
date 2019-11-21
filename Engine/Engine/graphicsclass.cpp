@@ -22,6 +22,8 @@ GraphicsClass::GraphicsClass()
 	m_PointLightShader = 0;
 	m_PointLight = 0;
 	playerPosZ = 0; 
+	playerPoint =0;
+	EnmeyPoint = 0;
 }
 
 
@@ -58,6 +60,19 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+
+	m_gunShot = new Sound;
+	if (!m_gunShot)
+	{
+		return false;
+	}
+	result = m_gunShot->Initialize(hwnd, "../Engine/data/gunshot.wav");
+	if (!result)
+	{
+		return false;
+	}
+
+
 	// Create the camera object.
 	m_Camera = new CameraClass;
 	if (!m_Camera)
@@ -66,75 +81,27 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(-90.0f, 20.0f, 0.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
 
-	const int NumOfModel = 8;
+	const int NumOfModel = 1;
 
 	WCHAR*	models[NumOfModel] = {
-		L"../Engine/data/Tennis-Court.obj",
-
-		L"../Engine/data/ball.obj",
-
-		L"../Engine/data/wall.obj",
-		L"../Engine/data/wall.obj",
-		L"../Engine/data/wall.obj",
-		L"../Engine/data/wall.obj",
-
-		L"../Engine/data/Pokemon.obj",
-		L"../Engine/data/Pokemon.obj"
-
-
+		L"../Engine/data/Stone.obj",
 	};
 	WCHAR* modelTextures[NumOfModel] = {
-		L"../Engine/data/TennisCourt.dds",
-
-		L"../Engine/data/ball.dds",
-
-		L"../Engine/data/wall.dds",
-		L"../Engine/data/wall.dds",
-		L"../Engine/data/wall.dds",
-		L"../Engine/data/wall.dds",
-
-		L"../Engine/data/Pokemon.dds",
-		L"../Engine/data/Pokemon.dds"
+		L"../Engine/data/Stone.dds",
 	};
 
 	D3DXVECTOR3 positions[] = {
-		{ 0.0f, 0.0f, 0.0f },
-
-		{ 0.0f, 2.2f, 0.0f},
-
-		{ -43.0f, 10.0f, -45.0f },//R
-		{ -43.0f, 10.0f, 45.0f }, //L
-
-		{ -70.0f, 10.0f, 33.0f }, // B
-		{ 70.0f, 10.0f, 33.0f }, //F
-
-		{ -60.0f, 0.0f, 0.0f},
-		{ 50.0f, 0.2f, 0.0f}
+		{ 0.0f, 0.0f, 0.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
-		{ 1.0f, 1.0f, 1.0f},
-
-		{ 0.3f, 0.3f, 0.3f},
-		
-		{0.5f, 0.2f, 0.5f},
-		{0.5f, 0.2f, 0.5f},
-		{0.35f, 0.2f, 0.35f},
-		{0.35f, 0.2f, 0.35f},
-
-
-		{ 3.2f, 3.2f, 3.2f},
-		{ 7.0f, 7.0f, 7.0f}
+		{ 0.5f, 0.5f, 0.5f},
 	};
 
 	float Rotation[] = {
 		0.0f, 
-		0.0f, 
-		0.0f,  0.0f, 
-		1.5708f, 1.5708f,
-		1.5708f,-1.5708f
 	};
 
 
@@ -151,6 +118,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 			return false;
 		}
 		m_D3D->GetWorldMatrix(objMat);
+
 		D3DXMatrixIdentity(&scaleMat);
 		D3DXMatrixTranslation(&objMat, positions[i].x, positions[i].y, positions[i].z);
 		D3DXMatrixScaling(&scaleMat, scales[i].x, scales[i].y, scales[i].z);
@@ -158,14 +126,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
 		D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
 
-
 		m_Models.push_back(newModel);
 		m_objMatrices.push_back(objMat);
 
 		m_Models[i]->scalingCollison(scales[i]);
 		m_Models[i]->rotationCollison(Rotation[i]);
-		m_Models[i]->translateCollison(positions[i]);
-	
+		m_Models[i]->updateColliosnPos(positions[i]);
+		m_Models[i]->getTransform(positions[i], Rotation[i], scales[i]);
 	}
 
 
@@ -298,8 +265,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+	m_Camera->SetPosition(-110.0f, 80.0f, 0.0f);
 	m_Camera->Yaw(1.5708f);
-	m_Camera->Pitch(0.2f);
+	m_Camera->Pitch(0.75f);
+
+
 	return true;
 }
 
@@ -372,6 +342,7 @@ void GraphicsClass::Shutdown()
 		m_Text = 0;
 	}
 
+
 	return;
 }
 
@@ -391,48 +362,96 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	m_Camera->Yaw(deltaX * frameTime * 0.00018f);
 	m_Camera->Pitch(deltaY * frameTime * 0.00018f);
 
-	//오브젝트 이동
-	D3DXVECTOR3 A = {m_Models[1]->speed*m_Models[1]->forward.x, m_Models[2]->forward.y, m_Models[1]->forward.z };
-	D3DXMatrixTranslation(&forward, m_Models[1]->speed*m_Models[1]->forward.x, m_Models[1]->forward.y, m_Models[1]->forward.z);
-	D3DXMatrixMultiply(&m_objMatrices[1], &m_objMatrices[1], &forward);
-	m_Models[1]->translateCollison(A);
+
+	//공 이동
+	//D3DXVECTOR3 A = {m_Models[1]->speed*m_Models[1]->forward.x, m_Models[1]->speed*m_Models[1]->forward.y,m_Models[1]->speed* m_Models[1]->forward.z };
+	//D3DXMatrixTranslation(&forward, m_Models[1]->speed*m_Models[1]->forward.x, m_Models[1]->forward.y, m_Models[1]->forward.z);
+	//D3DXMatrixMultiply(&m_objMatrices[1], &m_objMatrices[1], &forward);
+	//m_Models[1]->translateCollison(A);
+	//m_Models[1]->updateColliosnPos(A);
+
+	//몬스터 ai
+	//float random = rand() % 3 -1;
+	//m_objMatrices[7] = m_Models[7]->translatePosition({ m_Models[7]->position.x, m_Models[7]->position.y , (float)m_Models[1]->position.z*0.9f});
+
+	//if (m_Models[7]->position.z > m_Models[1]->position.z + 1)
+	//{
+	//	D3DXMATRIX objMat;
+	//	D3DXVECTOR3 position = { 0.0f, 0.0f, -0.3f };//left
+	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, -0.3f);
+	//	D3DXMatrixMultiply(&m_objMatrices[7], &m_objMatrices[7], &objMat);
+	//	m_Models[7]->updateColliosnPos(position);
+	//}
+	//else if (m_Models[7]->position.z < m_Models[1]->position.z - 1)
+	//{
+	//	D3DXMATRIX objMat;
+	//	D3DXVECTOR3 position = { 0.0f, 0.0f, 0.3f };//left
+	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, 0.3f);
+	//	D3DXMatrixMultiply(&m_objMatrices[7], &m_objMatrices[7], &objMat);
+	//	m_Models[7]->updateColliosnPos(position);
+	//}
+
+	////오브젝트 충돌
+	//if (m_Models[1]->AABBToAABB(m_Models[2]))//L
+	//{
+	//	m_Models[1]->reflect({0,0,1});
+	//	m_gunShot->PlayWaveFile(-2000, false);
+	//}
+
+	////오브젝트 충돌
+	//if (m_Models[1]->AABBToAABB(m_Models[3]))//R
+	//{
+	//	m_Models[1]->reflect({ 0,0,-1 });
+	//	m_gunShot->PlayWaveFile(-2000, false);
+	//}
+
+	////오브젝트 충돌
+	//if (m_Models[1]->AABBToAABB(m_Models[4]))//B
+	//{
+	//	m_Models[1]->reflect({ 1,0,0 });
+	//	m_gunShot->PlayWaveFile(-2000, false);
+	//	EnmeyPoint++;
+	//	m_objMatrices[1] = m_Models[1]->resetSetting();
+	//	m_objMatrices[7] = m_Models[7]->translatePosition({ m_Models[7]->position.x, m_Models[7]->position.y , (float)m_Models[1]->position.z });
+	//}
+
+	////오브젝트 충돌
+	//if (m_Models[1]->AABBToAABB(m_Models[5]))//F
+	//{
+	//	m_Models[1]->reflect({ -1,0,0 });
+	//	m_gunShot->PlayWaveFile(-2000, false);
+	//	playerPoint++;
+	//	m_objMatrices[1] = m_Models[1]->resetSetting();
+	//	m_objMatrices[7] = m_Models[7]->translatePosition({ m_Models[7]->position.x, m_Models[7]->position.y , (float)m_Models[1]->position.z });
+	//}
 
 
-	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[2]))//R
-	{
-		m_Models[1]->reflect({0,0,-1});
-	}
-	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[3]))//L
-	{
-		m_Models[1]->reflect({ 0,0,1 });
-	}
+	////오브젝트 충돌
+	//if (m_Models[1]->AABBToAABB(m_Models[6]))//나
+	//{
+	//	float x;
+	//	x = -2 + rand() % 4;
+	//	x = x * 0.3f;
 
-	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[4]))//B
-	{
-		m_Models[1]->reflect({ 1,0,0 });
-	}
+	//	m_Models[1]->reflect({ 1,0,0 });
+	//	m_Models[1]->forward += {0, 0, x};
 
-	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[5]))//F
-	{
-		m_Models[1]->reflect({ -1,0,0 });
-	}
+	//	m_gunShot->PlayWaveFile(-2000, false);
+	//}
 
+	////오브젝트 충돌
+	//if (m_Models[1]->AABBToAABB(m_Models[7]))//적
+	//{
+	//	float x;
+	//	x = -2 + rand() % 3;
+	//	x = x * 0.3f;
 
-	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[6]))//B
-	{
-		m_Models[1]->reflect({ 1,0,0 });
-	}
+	//	m_Models[1]->reflect({ -1,0,0 });
+	//	m_Models[1]->forward += {0,0,x};
 
-	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[7]))//F
-	{
-		m_Models[1]->reflect({ -1,0,0 });
-	}
+	//	
+	//	m_gunShot->PlayWaveFile(-2000, false);
+	//}
 
 
 
@@ -442,28 +461,30 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
 
 
-	if (m_Input->GetKey(KeyCode::LEFTARROW)&& playerPosZ<100)
-	{
-		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 0.0f, 0.0f, 0.2f };
-		D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, 0.2f);
-		D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
-		playerPosZ++;
-		m_Models[6]->translateCollison(position);
-	}
+	//if (m_Input->GetKey(KeyCode::LEFTARROW)&& playerPosZ<100)
+	//{
+	//	D3DXMATRIX objMat;
+	//	D3DXVECTOR3 position = { 0.0f, 0.0f, 0.7f };
+	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, 0.7f);
+	//	D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
+	//	playerPosZ++;
+	//	m_Models[6]->updateColliosnPos(position);
+	//}
 
 
-	
+	//
 
-	if (m_Input->GetKey(KeyCode::RIGHTARROW) && playerPosZ > -100)
-	{
-		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 0.0f, 0.0f, -0.2f };
-		D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, -0.2f);
-		D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
-		playerPosZ--;
-		m_Models[6]->translateCollison(position);
-	}
+	//if (m_Input->GetKey(KeyCode::RIGHTARROW) && playerPosZ > -100)
+	//{
+	//	D3DXMATRIX objMat;
+	//	D3DXVECTOR3 position = { 0.0f, 0.0f, -0.7f };
+	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, -0.7f);
+	//	//D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
+	//	playerPosZ--;
+	//	//m_Models[6]->translateCollison(position);
+	//	m_Models[6]->updateColliosnPos(position);
+	//}
+
 
 
 
@@ -495,6 +516,12 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	}
 
 
+	result = m_Text->SetScore(playerPoint, EnmeyPoint,m_D3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
 	D3DXVECTOR3 position = m_Camera->GetPosition();
 	float height;
 
@@ -514,7 +541,6 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 
 
 	m_Skybox->UpdatePos(position);
-
 	return true;
 }
 
@@ -523,7 +549,6 @@ bool GraphicsClass::Render(float rotation)
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	D3DXMATRIX lampMatrixR, skullMatrixR, dogMatrixR, floorMatrixR, LeftWallMatrixR, MiddleWallMatrixR, RightWallMatrixR, CeilingMatrixR;
 	bool result;
-
 
 
 	// Clear the buffers to begin the scene.
@@ -570,38 +595,54 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->TurnZBufferOn();
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_Models[0]->Render(m_D3D->GetDeviceContext());
+	//m_Models[0]->Render(m_D3D->GetDeviceContext());
 
 
 	// Render the model using the light shader.
-	result = m_PointLightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[0], viewMatrix, projectionMatrix,
+	/*result = m_PointLightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[0], viewMatrix, projectionMatrix,
 	m_Models[0]->GetTexture(), m_PointLight->GetDiffuseColor(), m_PointLight->GetPosition());
 	if (!result)
 	{
 		return false;
-	}
+	}*/
 
 
 	//Render the model using the texture shader.ceiling
-	for (int i = 1; i < m_Models.size(); i++)
+	//for (int i = 0; i < m_Models.size(); i++)
+	//{
+	//	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	//	m_Models[i]->Render(m_D3D->GetDeviceContext());
+
+
+	//	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[i]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
+	//		m_Models[i]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+	//		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+	//	if (!result)
+	//	{
+	//		return false;
+	//	}
+	//}
+
+
+	for (int i = 0; i < 10; i++)
 	{
-		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-		m_Models[i]->Render(m_D3D->GetDeviceContext());
-
-
-		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[i]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
-			m_Models[i]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+		m_Models[0]->Render(m_D3D->GetDeviceContext());
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[0], viewMatrix, projectionMatrix,
+				m_Models[0]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+				m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 
 		if (!result)
 		{
 			return false;
 		}
 
+		D3DXMATRIX objMat;
+		D3DXVECTOR3 positions = { 1.0f, 0.0f, 0.0f };
 
+		D3DXMatrixTranslation(&objMat, positions.x, positions.y, positions.z);
+		D3DXMatrixMultiply(&m_objMatrices[0], &m_objMatrices[0], &objMat);
 	}
-
-
 
 
 	// Turn on the alpha blending before rendering the text.

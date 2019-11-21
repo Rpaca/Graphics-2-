@@ -20,7 +20,7 @@
 #include "bitmapclass.h"
 #include "inputclass.h"
 #include "skyboxclass.h"
-
+#include "Sound.h"
 
 /////////////
 // GLOBALS //
@@ -46,6 +46,8 @@ public:
 	void Shutdown();
 	bool Frame(int, int, float);
 	bool Render(float);
+	int playerPoint;
+	int EnmeyPoint;
 
 private:
 	D3DClass* m_D3D;
@@ -55,6 +57,7 @@ private:
 	LightClass* m_Light;
 	PointLightShaderClass* m_PointLightShader;
 	PointLightClass* m_PointLight;
+	Sound				*m_gunShot;
 	InputClass* m_Input;
 	TextureShaderClass* m_TextureShader;
 	BitmapClass* m_Bitmap;

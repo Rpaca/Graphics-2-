@@ -98,6 +98,7 @@
     <ClCompile Include="pointlightclass.cpp" />
     <ClCompile Include="poitntlightshaderclass.cpp" />
     <ClCompile Include="skyboxclass.cpp" />
+    <ClCompile Include="Sound.cpp" />
     <ClCompile Include="systemclass.cpp" />
     <ClCompile Include="textclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="pointlightclass.h" />
     <ClInclude Include="pointlightshaderclass.h" />
     <ClInclude Include="skyboxclass.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />

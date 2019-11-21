@@ -14,6 +14,7 @@
 #include "cpuclass.h"
 #include "timerclass.h"
 #include "inputclass.h"
+#include "Sound.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +49,7 @@ private:
 	FpsClass* m_Fps;
 	CpuClass* m_Cpu;
 	TimerClass* m_Timer;
+	Sound		*m_BGM;
 };
 
 

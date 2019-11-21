@@ -89,7 +89,7 @@ public:
 	bool SetScreenSize(int, int, ID3D11DeviceContext*);
 
 	bool SetPosition(D3DXVECTOR3, ID3D11DeviceContext*);
-
+	bool SetScore(int, int, ID3D11DeviceContext*);
 	void TurnOnOffRenderInfo();
 
 private:
