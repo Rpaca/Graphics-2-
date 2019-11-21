@@ -65,19 +65,19 @@ bool SystemClass::Initialize()
 	}
 
 
-	// Create the sound object.
-	m_BGM = new Sound;
-	if (!m_BGM)
-	{
-		return false;
-	}
-	// Initialize the sound object.
-	result = m_BGM->Initialize(m_hwnd, "../Engine/data/BGM.wav");
-	if (!result)
-	{
-		MessageBox(m_hwnd, L"Could not initialize Direct Sound.", L"Error", MB_OK);
-		return false;
-	}
+	//// Create the sound object.
+	//m_BGM = new Sound;
+	//if (!m_BGM)
+	//{
+	//	return false;
+	//}
+	//// Initialize the sound object.
+	//result = m_BGM->Initialize(m_hwnd, "../Engine/data/BGM.wav");
+	//if (!result)
+	//{
+	//	MessageBox(m_hwnd, L"Could not initialize Direct Sound.", L"Error", MB_OK);
+	//	return false;
+	//}
 
 
 	m_BGM->PlayWaveFile(-1000, true);
@@ -135,13 +135,13 @@ void SystemClass::Shutdown()
 		m_Input = 0;
 	}
 
-	// Release the sound object.
-	if (m_BGM)
-	{
-		m_BGM->Shutdown();
-		delete m_BGM;
-		m_BGM = 0;
-	}
+	//// Release the sound object.
+	//if (m_BGM)
+	//{
+	//	m_BGM->Shutdown();
+	//	delete m_BGM;
+	//	m_BGM = 0;
+	//}
 
 	// Release the timer object.
 	if (m_Timer)

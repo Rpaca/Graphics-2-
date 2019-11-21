@@ -264,25 +264,25 @@ void Sound::ShutdownWaveFile(IDirectSoundBuffer8** secondaryBuffer)
 
 bool Sound::PlayWaveFile(long volume, bool loop)
 {	
-	HRESULT result;
-	// Set position at the beginning of the sound buffer.
-	result = m_secondaryBuffer1->SetCurrentPosition(0);
-	if (FAILED(result))
-	{
-		return false;
-	}
-	// Set volume of the buffer to 100%.
-	result = m_secondaryBuffer1->SetVolume(volume);
-	if (FAILED(result))
-	{
-		return false;
-	}
-	// Play the contents of the secondary sound buffer.
-	result = m_secondaryBuffer1->Play(0, 0, (loop ? 1 : 0));
-	if (FAILED(result))
-	{
-		return false;
-	}
+	//HRESULT result;
+	//// Set position at the beginning of the sound buffer.
+	//result = m_secondaryBuffer1->SetCurrentPosition(0);
+	//if (FAILED(result))
+	//{
+	//	return false;
+	//}
+	//// Set volume of the buffer to 100%.
+	//result = m_secondaryBuffer1->SetVolume(volume);
+	//if (FAILED(result))
+	//{
+	//	return false;
+	//}
+	//// Play the contents of the secondary sound buffer.
+	//result = m_secondaryBuffer1->Play(0, 0, (loop ? 1 : 0));
+	//if (FAILED(result))
+	//{
+	//	return false;
+	//}
 	return true;
 }
 

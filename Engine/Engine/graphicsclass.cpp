@@ -61,16 +61,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 
-	m_gunShot = new Sound;
-	if (!m_gunShot)
-	{
-		return false;
-	}
-	result = m_gunShot->Initialize(hwnd, "../Engine/data/gunshot.wav");
-	if (!result)
-	{
-		return false;
-	}
+	//m_gunShot = new Sound;
+	//if (!m_gunShot)
+	//{
+	//	return false;
+	//}
+	//result = m_gunShot->Initialize(hwnd, "../Engine/data/gunshot.wav");
+	//if (!result)
+	//{
+	//	return false;
+	//}
 
 
 	// Create the camera object.
@@ -83,30 +83,39 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
 
-	const int NumOfModel = 1;
+	const int NumOfModel = 3;
 
 	WCHAR*	models[NumOfModel] = {
 		L"../Engine/data/Stone.obj",
+		L"../Engine/data/Knight.obj",
+		L"../Engine/data/Monster.obj",
 	};
 	WCHAR* modelTextures[NumOfModel] = {
+		L"../Engine/data/Stone.dds",
+		L"../Engine/data/Stone.dds",
 		L"../Engine/data/Stone.dds",
 	};
 
 	D3DXVECTOR3 positions[] = {
 		{ 0.0f, 0.0f, 0.0f},
+		{ 100.0f, 10.0f, 50.0f},
+		{ 0.0f, 10.0f, 50.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
 		{ 0.5f, 0.5f, 0.5f},
+		{ 2.5f, 2.5f, 2.5f},
+		{ 2.5f, 2.5f, 2.5f},
 	};
 
 	float Rotation[] = {
-		0.0f, 
+		0.0f, 0.0f, 0.0f,
 	};
 
 
 
 	D3DXMATRIX objMat, scaleMat, rotationMat;
+
 	// Create the model object.
 	for (int i = 0; i < NumOfModel; ++i)
 	{
@@ -117,6 +126,31 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 			return false;
 		}
+		m_Models.push_back(newModel);
+	}
+	// Create the model transform.
+	for (int i = 0; i < 10; ++i)
+	{
+		for (int i = 0; i < 10; ++i)
+		{
+			m_D3D->GetWorldMatrix(objMat);
+
+			D3DXMatrixIdentity(&scaleMat);
+			D3DXMatrixTranslation(&objMat, positions[0].x, positions[0].y, positions[0].z);
+			D3DXMatrixScaling(&scaleMat, scales[0].x, scales[0].y, scales[0].z);
+			D3DXMatrixRotationY(&rotationMat, Rotation[0]);
+			D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
+			D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
+
+			m_objMatrices.push_back(objMat);
+			positions[0] += {0.0f, 0.0f, 50.0f};
+		}
+		positions[0].z = 0.0f;
+		positions[0] += {50.0f, 0.0f, 0.0f};
+	}
+
+	for (int i = 1; i < NumOfModel; ++i)
+	{
 		m_D3D->GetWorldMatrix(objMat);
 
 		D3DXMatrixIdentity(&scaleMat);
@@ -125,8 +159,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		D3DXMatrixRotationY(&rotationMat, Rotation[i]);
 		D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
 		D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
-
-		m_Models.push_back(newModel);
 		m_objMatrices.push_back(objMat);
 
 		m_Models[i]->scalingCollison(scales[i]);
@@ -624,11 +656,11 @@ bool GraphicsClass::Render(float rotation)
 	//	}
 	//}
 
-
-	for (int i = 0; i < 10; i++)
+	// creat map.
+	for (int i = 0; i < 100; i++)
 	{
 		m_Models[0]->Render(m_D3D->GetDeviceContext());
-		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[0], viewMatrix, projectionMatrix,
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
 				m_Models[0]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
 				m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 
@@ -636,12 +668,21 @@ bool GraphicsClass::Render(float rotation)
 		{
 			return false;
 		}
+	}
 
-		D3DXMATRIX objMat;
-		D3DXVECTOR3 positions = { 1.0f, 0.0f, 0.0f };
+	for (int i = 1; i < m_Models.size(); i++)
+	{
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		m_Models[i]->Render(m_D3D->GetDeviceContext());
 
-		D3DXMatrixTranslation(&objMat, positions.x, positions.y, positions.z);
-		D3DXMatrixMultiply(&m_objMatrices[0], &m_objMatrices[0], &objMat);
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[i]->GetIndexCount(), m_objMatrices[i+100], viewMatrix, projectionMatrix,
+			m_Models[i]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+		if (!result)
+		{
+			return false;
+		}
 	}
 
 
