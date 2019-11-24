@@ -24,6 +24,7 @@ GraphicsClass::GraphicsClass()
 	playerPosZ = 0; 
 	playerPoint =0;
 	EnmeyPoint = 0;
+	OnState = OnPlayer;
 }
 
 
@@ -83,34 +84,39 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
 
-	const int NumOfModel = 3;
+	const int NumOfModel = 4;
 
 	WCHAR*	models[NumOfModel] = {
 		L"../Engine/data/Stone.obj",
 		L"../Engine/data/Knight.obj",
 		L"../Engine/data/Monster.obj",
+		L"../Engine/data/wall.obj",
 	};
 	WCHAR* modelTextures[NumOfModel] = {
 		L"../Engine/data/Stone.dds",
-		L"../Engine/data/Stone.dds",
-		L"../Engine/data/Stone.dds",
+		L"../Engine/data/Pillar.dds",
+		L"../Engine/data/Pillar.dds",
+		L"../Engine/data/wall.dds",
 	};
 
 	D3DXVECTOR3 positions[] = {
 		{ 0.0f, 0.0f, 0.0f},
-		{ 100.0f, 10.0f, 50.0f},
-		{ 0.0f, 10.0f, 50.0f},
+		{ 200.0f, 5.0f, 0.0f},
+		{ 200.0f, 5.0f, 400.0f},
+		{ -5.0f, 40.0f, 23.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
 		{ 0.5f, 0.5f, 0.5f},
-		{ 2.5f, 2.5f, 2.5f},
-		{ 2.5f, 2.5f, 2.5f},
+		{ 5.5f, 5.5f, 5.5f},
+		{ 5.5f, 5.5f, 5.5f},
+		{ 0.4f, 0.5f, 0.5f},
 	};
 
 	float Rotation[] = {
-		0.0f, 0.0f, 0.0f,
+		0.0f, 180.0f, 0.0f, 0.0f,
 	};
+
 
 
 
@@ -129,16 +135,16 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		m_Models.push_back(newModel);
 	}
 	// Create the model transform.
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 9; ++i)
 	{
-		for (int i = 0; i < 10; ++i)
+		for (int i = 0; i < 9; ++i)
 		{
 			m_D3D->GetWorldMatrix(objMat);
 
 			D3DXMatrixIdentity(&scaleMat);
 			D3DXMatrixTranslation(&objMat, positions[0].x, positions[0].y, positions[0].z);
 			D3DXMatrixScaling(&scaleMat, scales[0].x, scales[0].y, scales[0].z);
-			D3DXMatrixRotationY(&rotationMat, Rotation[0]);
+			D3DXMatrixRotationY(&rotationMat, Rotation[0] * (PI / 180));
 			D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
 			D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
 
@@ -156,7 +162,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		D3DXMatrixIdentity(&scaleMat);
 		D3DXMatrixTranslation(&objMat, positions[i].x, positions[i].y, positions[i].z);
 		D3DXMatrixScaling(&scaleMat, scales[i].x, scales[i].y, scales[i].z);
-		D3DXMatrixRotationY(&rotationMat, Rotation[i]);
+		D3DXMatrixRotationY(&rotationMat, Rotation[i] * (PI / 180));
 		D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
 		D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
 		m_objMatrices.push_back(objMat);
@@ -166,8 +172,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		m_Models[i]->updateColliosnPos(positions[i]);
 		m_Models[i]->getTransform(positions[i], Rotation[i], scales[i]);
 	}
-
-
 
 
 	// Create the light shader object.
@@ -492,19 +496,68 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
 	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
 
+	if (m_Input->GetKeyDown(KeyCode::ENTER))
+	{
+		if (OnState == OnPlayer)
+			OnState = OnEnumy;
+		else
+			OnState = OnPlayer;
+	}
 
-	//if (m_Input->GetKey(KeyCode::LEFTARROW)&& playerPosZ<100)
-	//{
-	//	D3DXMATRIX objMat;
-	//	D3DXVECTOR3 position = { 0.0f, 0.0f, 0.7f };
-	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, 0.7f);
-	//	D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
-	//	playerPosZ++;
-	//	m_Models[6]->updateColliosnPos(position);
-	//}
+	if (m_Input->GetKeyDown(KeyCode::LEFTARROW))
+	{
+		D3DXMATRIX objMat;
+		D3DXVECTOR3 position = { -50.0f, 0.0f, 0.0f };
+		int num;
+		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
+		m_Models[num]->updateColliosnPos(position);
+	}
 
+	if (m_Input->GetKeyDown(KeyCode::RIGHTARROW))
+	{
+		D3DXMATRIX objMat;
+		D3DXVECTOR3 position = { 50.0f, 0.0f, 0.0f };
+		int num;
+		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
+		m_Models[num]->updateColliosnPos(position);
+	}
+	if (m_Input->GetKeyDown(KeyCode::UPARROW))
+	{
+		D3DXMATRIX objMat;
+		D3DXVECTOR3 position = { 0.0f, 0.0f, 50.0f };
+		int num;
+		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
+		m_Models[num]->updateColliosnPos(position);
+	}
+	if (m_Input->GetKeyDown(KeyCode::DOWNARROW))
+	{
+		D3DXMATRIX objMat;
+		D3DXVECTOR3 position = { 0.0f, 0.0f, -50.0f };
+		int num;
+		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
+		m_Models[num]->updateColliosnPos(position);
+	}
 
-	//
 
 	//if (m_Input->GetKey(KeyCode::RIGHTARROW) && playerPosZ > -100)
 	//{
@@ -569,7 +622,6 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	{
 		return false;
 	}
-
 
 
 	m_Skybox->UpdatePos(position);
@@ -657,13 +709,12 @@ bool GraphicsClass::Render(float rotation)
 	//}
 
 	// creat map.
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 81; i++)
 	{
 		m_Models[0]->Render(m_D3D->GetDeviceContext());
 		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
 				m_Models[0]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
 				m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-
 		if (!result)
 		{
 			return false;
@@ -675,7 +726,7 @@ bool GraphicsClass::Render(float rotation)
 		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 		m_Models[i]->Render(m_D3D->GetDeviceContext());
 
-		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[i]->GetIndexCount(), m_objMatrices[i+100], viewMatrix, projectionMatrix,
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[i]->GetIndexCount(), m_objMatrices[i+80], viewMatrix, projectionMatrix,
 			m_Models[i]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
 			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 

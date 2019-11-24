@@ -16,12 +16,16 @@ InputClass::InputClass()
 		{ KeyCode::A,				DIK_A },
 		{ KeyCode::S,				DIK_S },
 		{ KeyCode::D,				DIK_D },
+		{ KeyCode::R,				DIK_R },
+		{ KeyCode::ENTER,			DIK_RETURN },
 		{ KeyCode::ESCAPE,			DIK_ESCAPE },
 		{ KeyCode::LSHFIT,			DIK_LSHIFT},
 		{ KeyCode::F1,				DIK_F1},
 		{ KeyCode::F2,				DIK_F2},
 		{ KeyCode::LEFTARROW,		DIK_LEFTARROW},
 		{ KeyCode::RIGHTARROW,		DIK_RIGHTARROW},
+		{ KeyCode::UPARROW,			DIK_UPARROW},
+		{ KeyCode::DOWNARROW,		DIK_DOWNARROW},
 	};
 }
 

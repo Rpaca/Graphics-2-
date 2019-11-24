@@ -31,6 +31,11 @@ const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 
 
+enum State
+{
+	OnPlayer,
+	OnEnumy,
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: GraphicsClass
@@ -66,5 +71,6 @@ private:
 	vector<D3DXMATRIX>	 m_objMatrices;
 	int					 m_numOfPolygons;
 	float				 playerPosZ;
+	State			   	OnState;
 };
 #endif

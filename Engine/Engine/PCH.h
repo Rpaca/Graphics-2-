@@ -43,6 +43,8 @@
 #include <vector>
 #include <map>
 
+#define PI 3.1415926535897
+
 using std::ifstream;
 using std::ofstream;
 using std::string;
