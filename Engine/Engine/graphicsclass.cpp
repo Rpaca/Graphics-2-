@@ -84,37 +84,49 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
 
-	const int NumOfModel = 4;
+	const int NumOfModel = 7;
 
 	WCHAR*	models[NumOfModel] = {
 		L"../Engine/data/Stone.obj",
 		L"../Engine/data/Knight.obj",
 		L"../Engine/data/Monster.obj",
-		L"../Engine/data/wall.obj",
+		L"../Engine/data/CircularGrass.obj",
+		L"../Engine/data/FantasyHouse.obj",
+		L"../Engine/data/Chest.obj",
+		L"../Engine/data/tree.obj",
 	};
 	WCHAR* modelTextures[NumOfModel] = {
 		L"../Engine/data/Stone.dds",
 		L"../Engine/data/Pillar.dds",
 		L"../Engine/data/Pillar.dds",
-		L"../Engine/data/wall.dds",
+		L"../Engine/data/CircularGrass.jpg",
+		L"../Engine/data/FantasyHouse.dds",
+		L"../Engine/data/Chest.dds",
+		L"../Engine/data/tree.jpg",
 	};
 
 	D3DXVECTOR3 positions[] = {
 		{ 0.0f, 0.0f, 0.0f},
-		{ 200.0f, 5.0f, 0.0f},
-		{ 200.0f, 5.0f, 400.0f},
-		{ -5.0f, 40.0f, 23.0f},
+		{ 200.0f, 8.0f, 0.0f},
+		{ 200.0f, 8.0f, 400.0f},
+		{ 0.0f, -50.0f, 0.0f},
+		{ 500.0f, 20.0f, 200.0f},
+		{ -50.0f, 0.0f, 0.0f},
+		{ -50.0f, 0.0f, -50.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
 		{ 0.5f, 0.5f, 0.5f},
 		{ 5.5f, 5.5f, 5.5f},
-		{ 5.5f, 5.5f, 5.5f},
-		{ 0.4f, 0.5f, 0.5f},
+		{ 8.5f, 5.5f, 8.5f},
+		{ 5.0f, 5.0f, 5.0f},
+		{ 10.0f, 10.0f, 10.0f},
+		{ 0.1f, 0.1f, 0.1f},
+		{ 0.5f, 0.5f, 0.5f},
 	};
 
 	float Rotation[] = {
-		0.0f, 180.0f, 0.0f, 0.0f,
+		0.0f, 180.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
 	};
 
 
