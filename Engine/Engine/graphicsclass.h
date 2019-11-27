@@ -62,7 +62,11 @@ private:
 	LightClass* m_Light;
 	PointLightShaderClass* m_PointLightShader;
 	PointLightClass* m_PointLight;
-	Sound				*m_gunShot;
+	D3DXVECTOR3 lastPosition;
+	Sound				*m_step;
+	Sound				*m_manVoice;
+	Sound				*m_orcVoice;
+
 	InputClass* m_Input;
 	TextureShaderClass* m_TextureShader;
 	BitmapClass* m_Bitmap;
@@ -70,7 +74,15 @@ private:
 	SkyboxClass* m_Skybox;
 	vector<D3DXMATRIX>	 m_objMatrices;
 	int					 m_numOfPolygons;
-	float				 playerPosZ;
+	
+	int					point;
+	float				playerPosZ;
 	State			   	OnState;
+	bool				OnLeft;
+	bool				OnRight;
+	bool				OnUp;
+	bool				OnDown;
+
+	D3DXMATRIX			Translate(ModelClass*, D3DXVECTOR3, D3DXVECTOR3, float);
 };
 #endif

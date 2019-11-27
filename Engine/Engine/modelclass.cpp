@@ -572,7 +572,6 @@ void ModelClass::translateCollison(D3DXVECTOR3 position)
 	D3DXVec3TransformCoord(&vMin, &vMin, &objMat);
 }
 
-
 D3DXMATRIX ModelClass::translatePosition(D3DXVECTOR3 pos)
 {
 	D3DXMATRIX objMat, scaleMat, rotationMat;
@@ -665,9 +664,6 @@ D3DXVECTOR3 ModelClass::getVector()
 
 	return yMin;
 }
-
-
-//마지막 딱한판만 조지고 그래픽스 끝날때까지 밤세ㅐㅁ
 
 
 void ModelClass::getTransform(D3DXVECTOR3 pos, float rot, D3DXVECTOR3 scale)

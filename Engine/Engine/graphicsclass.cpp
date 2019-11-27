@@ -25,6 +25,13 @@ GraphicsClass::GraphicsClass()
 	playerPoint =0;
 	EnmeyPoint = 0;
 	OnState = OnPlayer;
+
+	point = 0;
+	OnLeft = 0;
+	OnRight = 0;
+	OnUp = 0;
+	OnDown = 0;
+	lastPosition;
 }
 
 
@@ -62,16 +69,38 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 
-	//m_gunShot = new Sound;
-	//if (!m_gunShot)
-	//{
-	//	return false;
-	//}
-	//result = m_gunShot->Initialize(hwnd, "../Engine/data/gunshot.wav");
-	//if (!result)
-	//{
-	//	return false;
-	//}
+	m_manVoice = new Sound;
+	if (!m_manVoice)
+	{
+		return false;
+	}
+	result = m_manVoice->Initialize(hwnd, "../Engine/data/Footman.wav");
+	if (!result)
+	{
+		return false;
+	}
+
+	m_orcVoice = new Sound;
+	if (!m_manVoice)
+	{
+		return false;
+	}
+	result = m_orcVoice->Initialize(hwnd, "../Engine/data/Chieften.wav");
+	if (!result)
+	{
+		return false;
+	}
+
+	m_step = new Sound;
+	if (!m_manVoice)
+	{
+		return false;
+	}
+	result = m_step->Initialize(hwnd, "../Engine/data/step.wav");
+	if (!result)
+	{
+		return false;
+	}
 
 
 	// Create the camera object.
@@ -84,49 +113,62 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
 
-	const int NumOfModel = 7;
+	const int NumOfModel = 10;
 
 	WCHAR*	models[NumOfModel] = {
 		L"../Engine/data/Stone.obj",
-		L"../Engine/data/Knight.obj",
-		L"../Engine/data/Monster.obj",
+		L"../Engine/data/Knight1.obj",
+		L"../Engine/data/Monster1.obj",
 		L"../Engine/data/CircularGrass.obj",
 		L"../Engine/data/FantasyHouse.obj",
 		L"../Engine/data/Chest.obj",
 		L"../Engine/data/tree.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/War_Tower.obj",
+		L"../Engine/data/Portal.obj",
+
 	};
 	WCHAR* modelTextures[NumOfModel] = {
-		L"../Engine/data/Stone.dds",
-		L"../Engine/data/Pillar.dds",
-		L"../Engine/data/Pillar.dds",
+		L"../Engine/data/stone.dds",
+		L"../Engine/data/Axe.dds",
+		L"../Engine/data/Monster1.png",
 		L"../Engine/data/CircularGrass.jpg",
 		L"../Engine/data/FantasyHouse.dds",
 		L"../Engine/data/Chest.dds",
 		L"../Engine/data/tree.jpg",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/War_Tower.jpeg",
+		L"../Engine/data/Portal.png",
 	};
 
 	D3DXVECTOR3 positions[] = {
 		{ 0.0f, 0.0f, 0.0f},
 		{ 200.0f, 8.0f, 0.0f},
 		{ 200.0f, 8.0f, 400.0f},
-		{ 0.0f, -50.0f, 0.0f},
+		{ 200.0f, -50.0f, 200.0f},
 		{ 500.0f, 20.0f, 200.0f},
 		{ -50.0f, 0.0f, 0.0f},
-		{ -50.0f, 0.0f, -50.0f},
+		{ -50.0f, 0.0f, 150.0f},
+		{ 110.0f, 0.0f, 120.0f},
+		{ 200.0f, 0.0f, -150.0f},
+		{ 200.0f, 130.0f, 580.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
 		{ 0.5f, 0.5f, 0.5f},
-		{ 5.5f, 5.5f, 5.5f},
-		{ 8.5f, 5.5f, 8.5f},
+		{ 0.35f, 0.35f, 0.35f},
+		{ 15.0f, 15.0f, 15.0f},
 		{ 5.0f, 5.0f, 5.0f},
 		{ 10.0f, 10.0f, 10.0f},
 		{ 0.1f, 0.1f, 0.1f},
 		{ 0.5f, 0.5f, 0.5f},
+		{ 0.38f, 0.5f, 0.38},
+		{ 50.0f, 80.0f, 50.0f},
+		{ 2.0f, 2.0f, 2.0f},
 	};
 
 	float Rotation[] = {
-		0.0f, 180.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+		0.0f, 180.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
 	};
 
 
@@ -161,10 +203,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 			D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
 
 			m_objMatrices.push_back(objMat);
-			positions[0] += {0.0f, 0.0f, 50.0f};
+			positions[0] += {50.0f, 0.0f, 0.0f};
 		}
-		positions[0].z = 0.0f;
-		positions[0] += {50.0f, 0.0f, 0.0f};
+		positions[0].x = 0.0f;
+		positions[0] += {0.0f, 0.0f, 50.0f};
 	}
 
 	for (int i = 1; i < NumOfModel; ++i)
@@ -245,8 +287,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 	// Initialize the light object.
-	m_PointLight->SetDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
-	m_PointLight->SetPosition(0.0f, 3.0f, 0.0f);
+	m_PointLight->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
+	m_PointLight->SetPosition(0.0f, 50.0f, 0.0f);
 
 
 
@@ -404,7 +446,6 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	static float delay = 0.0f;
 	D3DXMATRIX forward;
 
-
 	// Run the frame processing for the particle system.
 	m_Input->GetMouseDeltaPosition(deltaX, deltaY);
 	m_Camera->Yaw(deltaX * frameTime * 0.00018f);
@@ -487,20 +528,6 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	//	m_gunShot->PlayWaveFile(-2000, false);
 	//}
 
-	////오브젝트 충돌
-	//if (m_Models[1]->AABBToAABB(m_Models[7]))//적
-	//{
-	//	float x;
-	//	x = -2 + rand() % 3;
-	//	x = x * 0.3f;
-
-	//	m_Models[1]->reflect({ -1,0,0 });
-	//	m_Models[1]->forward += {0,0,x};
-
-	//	
-	//	m_gunShot->PlayWaveFile(-2000, false);
-	//}
-
 
 
 	if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
@@ -508,18 +535,39 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
 	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
 
-	if (m_Input->GetKeyDown(KeyCode::ENTER))
+	if (m_Input->GetKeyDown(KeyCode::ENTER) && point == 0)
 	{
 		if (OnState == OnPlayer)
+		{
+			m_orcVoice->PlayWaveFile(-2000, false);
 			OnState = OnEnumy;
+		}
 		else
+		{
+			m_manVoice->PlayWaveFile(-2000, false);
 			OnState = OnPlayer;
+		}
 	}
 
-	if (m_Input->GetKeyDown(KeyCode::LEFTARROW))
+	if (m_Input->GetKeyDown(KeyCode::LEFTARROW) && point == 0)
+	{
+		int num;
+		point = 50;
+		m_step->PlayWaveFile(-2000, false);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		lastPosition = m_Models[num]->position;
+		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, 90.0f);
+
+		OnLeft = true;
+	}
+
+	if (OnLeft)
 	{
 		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { -50.0f, 0.0f, 0.0f };
+		D3DXVECTOR3 position = { -1.0f, 0.0f, 0.0f };
 		int num;
 		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
 		if (OnState == OnPlayer)
@@ -528,12 +576,30 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			num = 2;
 		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
 		m_Models[num]->updateColliosnPos(position);
+		point--;
+		if (point == 0)
+			OnLeft = false;
 	}
 
-	if (m_Input->GetKeyDown(KeyCode::RIGHTARROW))
+	if (m_Input->GetKeyDown(KeyCode::RIGHTARROW) && point == 0)
+	{
+		int num;
+		point = 50;
+		m_step->PlayWaveFile(-2000, false);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		lastPosition = m_Models[num]->position;
+		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, -90.0f);
+
+		OnRight = true;
+	}
+
+	if (OnRight)
 	{
 		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 50.0f, 0.0f, 0.0f };
+		D3DXVECTOR3 position = { 1.0f, 0.0f, 0.0f };
 		int num;
 		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
 		if (OnState == OnPlayer)
@@ -542,11 +608,30 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			num = 2;
 		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
 		m_Models[num]->updateColliosnPos(position);
+		point--;
+		if (point == 0)
+			OnRight = false;
 	}
-	if (m_Input->GetKeyDown(KeyCode::UPARROW))
+
+	if (m_Input->GetKeyDown(KeyCode::UPARROW) && point == 0)
+	{
+		int num;
+		point = 50;
+		m_step->PlayWaveFile(-2000, false);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		lastPosition = m_Models[num]->position;
+		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, 180.0f);
+
+		OnUp = true;
+	}
+
+	if (OnUp)
 	{
 		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 0.0f, 0.0f, 50.0f };
+		D3DXVECTOR3 position = { 0.0f, 0.0f, 1.0f };
 		int num;
 		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
 		if (OnState == OnPlayer)
@@ -555,11 +640,31 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			num = 2;
 		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
 		m_Models[num]->updateColliosnPos(position);
+		point--;
+		if (point == 0)
+			OnUp = false;
 	}
-	if (m_Input->GetKeyDown(KeyCode::DOWNARROW))
+
+
+	if (m_Input->GetKeyDown(KeyCode::DOWNARROW) && point == 0)
+	{
+		int num;
+		point = 50;
+		m_step->PlayWaveFile(-2000, false);
+		if (OnState == OnPlayer)
+			num = 1;
+		else
+			num = 2;
+		lastPosition = m_Models[num]->position;
+		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, 0.0f);
+
+		OnDown = true;
+	}
+
+	if (OnDown)
 	{
 		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 0.0f, 0.0f, -50.0f };
+		D3DXVECTOR3 position = { 0.0f, 0.0f, -1.0f };
 		int num;
 		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
 		if (OnState == OnPlayer)
@@ -568,20 +673,44 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			num = 2;
 		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
 		m_Models[num]->updateColliosnPos(position);
+		point--;
+		if (point == 0)
+			OnDown = false;
 	}
 
 
-	//if (m_Input->GetKey(KeyCode::RIGHTARROW) && playerPosZ > -100)
-	//{
-	//	D3DXMATRIX objMat;
-	//	D3DXVECTOR3 position = { 0.0f, 0.0f, -0.7f };
-	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, -0.7f);
-	//	//D3DXMatrixMultiply(&m_objMatrices[6], &m_objMatrices[6], &objMat);
-	//	playerPosZ--;
-	//	//m_Models[6]->translateCollison(position);
-	//	m_Models[6]->updateColliosnPos(position);
-	//}
+	//오브젝트 충돌
+	if (m_Models[1]->AABBToAABB(m_Models[7]))//적
+	{
+		if (OnUp || OnDown || OnLeft || OnRight)
+		{
+			D3DXVECTOR3 position = lastPosition;
+			point = 0;
+			OnUp = false;
+			OnDown = false;
+			OnLeft = false;
+			OnRight = false;
+			m_objMatrices[1 + 80] = Translate(m_Models[1], position, m_Models[1]->scale, m_Models[1]->rotation);
+			m_Models[1]->translatePosition(position);
+		}
 
+
+	}
+	//오브젝트 충돌
+	if (m_Models[2]->AABBToAABB(m_Models[7]))//적
+	{
+		if (OnUp || OnDown || OnLeft || OnRight)
+		{
+			D3DXVECTOR3 position = lastPosition;
+			point = 0;
+			OnUp = false;
+			OnDown = false;
+			OnLeft = false;
+			OnRight = false;
+			m_objMatrices[2 + 80] = Translate(m_Models[2], position, m_Models[2]->scale, m_Models[2]->rotation);
+			m_Models[2]->translatePosition(position);
+		}
+	}
 
 
 
@@ -724,9 +853,23 @@ bool GraphicsClass::Render(float rotation)
 	for (int i = 0; i < 81; i++)
 	{
 		m_Models[0]->Render(m_D3D->GetDeviceContext());
+
+		//if (i >=0 && i <9)
+		//{
+		//	result = m_PointLightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
+		//		m_Models[0]->GetTexture(), m_PointLight->GetDiffuseColor(), m_PointLight->GetPosition());
+		//}
+
+		//if (i >= 72 && i < 81)
+		//{
+		//	result = m_PointLightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
+		//		m_Models[0]->GetTexture(), m_PointLight->GetDiffuseColor(), m_PointLight->GetPosition());
+		//}
+
 		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[0]->GetIndexCount(), m_objMatrices[i], viewMatrix, projectionMatrix,
 				m_Models[0]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
 				m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
 		if (!result)
 		{
 			return false;
@@ -771,3 +914,24 @@ bool GraphicsClass::Render(float rotation)
 	return true;
 }
 
+D3DXMATRIX GraphicsClass::Translate(ModelClass* model, D3DXVECTOR3 position, D3DXVECTOR3 scale, float rotation)
+{
+	D3DXMATRIX objMat, scaleMat, rotationMat;
+
+
+	m_D3D->GetWorldMatrix(objMat);
+
+	D3DXMatrixIdentity(&scaleMat);
+	D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+	D3DXMatrixScaling(&scaleMat, scale.x, scale.y, scale.z);
+	D3DXMatrixRotationY(&rotationMat, rotation * (PI / 180));
+	D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
+	D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
+
+	//model->scalingCollison(scale);
+	//model->rotationCollison(rotation);
+	//model->updateColliosnPos(position);
+	//model->getTransform(position, rotation, scale);
+
+	return objMat;
+}
