@@ -130,7 +130,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	};
 	WCHAR* modelTextures[NumOfModel] = {
 		L"../Engine/data/stone.dds",
-		L"../Engine/data/Axe.dds",
+		L"../Engine/data/Axe1.dds",
 		L"../Engine/data/Monster1.png",
 		L"../Engine/data/CircularGrass.jpg",
 		L"../Engine/data/FantasyHouse.dds",
@@ -143,15 +143,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 
 	D3DXVECTOR3 positions[] = {
 		{ 0.0f, 0.0f, 0.0f},
-		{ 200.0f, 8.0f, 0.0f},
-		{ 200.0f, 8.0f, 400.0f},
+		{ 280.0f, 8.0f, 0.0f},
+		{ 280.0f, 7.0f, 550.0f},
 		{ 200.0f, -50.0f, 200.0f},
-		{ 500.0f, 20.0f, 200.0f},
+		{ 800.0f, 20.0f, 200.0f},
 		{ -50.0f, 0.0f, 0.0f},
 		{ -50.0f, 0.0f, 150.0f},
-		{ 110.0f, 0.0f, 120.0f},
-		{ 200.0f, 0.0f, -150.0f},
-		{ 200.0f, 130.0f, 580.0f},
+		{ 90.0f, 0.0f, 105.0f},
+		{ 280.0f, 0.0f, -150.0f},
+		{ 280.0f, 130.0f, 700.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
@@ -162,7 +162,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		{ 10.0f, 10.0f, 10.0f},
 		{ 0.1f, 0.1f, 0.1f},
 		{ 0.5f, 0.5f, 0.5f},
-		{ 0.38f, 0.5f, 0.38},
+		{ 0.39f, 0.39f, 0.39},
 		{ 50.0f, 80.0f, 50.0f},
 		{ 2.0f, 2.0f, 2.0f},
 	};
@@ -203,12 +203,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 			D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
 
 			m_objMatrices.push_back(objMat);
-			positions[0] += {50.0f, 0.0f, 0.0f};
+			positions[0] += {70.0f, 0.0f, 0.0f};
 		}
 		positions[0].x = 0.0f;
-		positions[0] += {0.0f, 0.0f, 50.0f};
+		positions[0] += {0.0f, 0.0f, 70.0f};
 	}
-
+	//creat game model
 	for (int i = 1; i < NumOfModel; ++i)
 	{
 		m_D3D->GetWorldMatrix(objMat);
@@ -226,7 +226,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		m_Models[i]->updateColliosnPos(positions[i]);
 		m_Models[i]->getTransform(positions[i], Rotation[i], scales[i]);
 	}
+	
+	//creat fance
+	for (int i = NumOfModel-1; i < 9; ++i)
+	{
+		m_D3D->GetWorldMatrix(objMat);
 
+		D3DXMatrixIdentity(&scaleMat);
+		D3DXMatrixTranslation(&objMat, positions[0].x, positions[0].y, positions[0].z);
+		D3DXMatrixScaling(&scaleMat, scales[0].x, scales[0].y, scales[0].z);
+		D3DXMatrixRotationY(&rotationMat, Rotation[0] * (PI / 180));
+		D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
+		D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
+
+		m_objMatrices.push_back(objMat);
+
+		positions[NumOfModel-1] += {70.0f, 0.0f, 0.0f};
+	}
 
 	// Create the light shader object.
 	m_LightShader = new LightShaderClass;
@@ -552,7 +568,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKeyDown(KeyCode::LEFTARROW) && point == 0)
 	{
 		int num;
-		point = 50;
+		point = 70;
 		m_step->PlayWaveFile(-2000, false);
 		if (OnState == OnPlayer)
 			num = 1;
@@ -584,7 +600,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKeyDown(KeyCode::RIGHTARROW) && point == 0)
 	{
 		int num;
-		point = 50;
+		point = 70;
 		m_step->PlayWaveFile(-2000, false);
 		if (OnState == OnPlayer)
 			num = 1;
@@ -616,7 +632,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKeyDown(KeyCode::UPARROW) && point == 0)
 	{
 		int num;
-		point = 50;
+		point = 70;
 		m_step->PlayWaveFile(-2000, false);
 		if (OnState == OnPlayer)
 			num = 1;
@@ -649,7 +665,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	if (m_Input->GetKeyDown(KeyCode::DOWNARROW) && point == 0)
 	{
 		int num;
-		point = 50;
+		point = 70;
 		m_step->PlayWaveFile(-2000, false);
 		if (OnState == OnPlayer)
 			num = 1;
@@ -876,6 +892,7 @@ bool GraphicsClass::Render(float rotation)
 		}
 	}
 
+	// creat model
 	for (int i = 1; i < m_Models.size(); i++)
 	{
 		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
@@ -891,6 +908,21 @@ bool GraphicsClass::Render(float rotation)
 		}
 	}
 
+	// creat fance
+	for (int i = m_Models.size()-1; i < 15; i++)
+	{
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		m_Models[m_Models.size() - 1]->Render(m_D3D->GetDeviceContext());
+
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[m_Models.size() - 1]->GetIndexCount(), m_objMatrices[9 + 80], viewMatrix, projectionMatrix,
+			m_Models[m_Models.size() - 1]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
+			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+		if (!result)
+		{
+			return false;
+		}
+	}
 
 	// Turn on the alpha blending before rendering the text.
 	m_D3D->TurnOnAlphaBlending();
