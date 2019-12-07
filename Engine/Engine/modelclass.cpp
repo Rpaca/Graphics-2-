@@ -123,9 +123,6 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	}
 
 
-
-
-
 	for (i = 0; i < m_vertexCount; i++)
 	{
 
@@ -591,13 +588,9 @@ D3DXMATRIX ModelClass::translatePosition(D3DXVECTOR3 pos)
 	return objMat;
 }
 
-//상대이동
+//상대이동(회전처리 불가)
 void ModelClass::updateColliosnPos(D3DXVECTOR3 vec)
 {
-	position += vec;
-
-	vMin += vec;
-	vMax += vec;
 
 	if (rMin == rMax)
 	{
@@ -605,7 +598,20 @@ void ModelClass::updateColliosnPos(D3DXVECTOR3 vec)
 		rMax = vMax;
 	}
 
+	position += vec;
+
+	vMin += vec;
+	vMax += vec;
 }
+
+//절대 이동
+void ModelClass::updateColliosnPosition(D3DXVECTOR3 vec)
+{
+	vMin = rMin + vec;
+	vMax = rMax + vec;
+
+}
+
 
 
 void ModelClass::scalingCollison(D3DXVECTOR3 scale)
@@ -618,20 +624,31 @@ void ModelClass::scalingCollison(D3DXVECTOR3 scale)
 
 void ModelClass::rotationCollison(float rotation)
 {
-	//D3DXMATRIX rotationMay;
+	int i = 0;
+	D3DXVECTOR3 translateVector = vMin - rMin;
+	vMin = { rMin.z, rMin.y, rMin.x };
+	rMin = vMin;
+	vMin += translateVector;
+
+	vMax = { rMax.z, rMax.y, rMax.x };
+	rMax = vMax;
+	vMax += translateVector;
+
+
+		//D3DXMATRIX rotationMay;
 	//D3DXMatrixRotationY(&rotationMay, rotation);
 	//D3DXVec3TransformCoord(&vMax, &vMax, &rotationMay);
 	//D3DXVec3TransformCoord(&vMin, &vMin, &rotationMay);
 
-	if (rotation == 0.0f)
-		return;
-	D3DXVECTOR3 max, min;
-	max = vMax;
-	min = vMin;
-	//vMax = { -vMax.z, vMax.y, -vMax.x };
-	//vMin = { -vMin.z, vMin.y, -vMin.x };
-	vMax = { -min.z, max.y, -min.x };
-	vMin = { -max.z, min.y, -max.x };
+	//if (rotation == 0.0f)
+	//	return;
+	//D3DXVECTOR3 max, min;
+	//max = vMax;
+	//min = vMin;
+	////vMax = { -vMax.z, vMax.y, -vMax.x };
+	////vMin = { -vMin.z, vMin.y, -vMin.x };
+	//vMax = { -min.z, max.y, -min.x };
+	//vMin = { -max.z, min.y, -max.x };
 }
 
 void ModelClass::newMatrixCollison(D3DXMATRIX* mat)

@@ -25,7 +25,7 @@
 /////////////
 // GLOBALS //
 /////////////
-const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -82,7 +82,12 @@ private:
 	bool				OnRight;
 	bool				OnUp;
 	bool				OnDown;
+	bool				OnPlank;
 
+
+	void				MoveCharacter(D3DXVECTOR3);
+	void				MoveObject(D3DXVECTOR3);
 	D3DXMATRIX			Translate(ModelClass*, D3DXVECTOR3, D3DXVECTOR3, float);
+
 };
 #endif

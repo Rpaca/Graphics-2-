@@ -80,6 +80,7 @@ public:
 	void newMatrixCollison(D3DXMATRIX*);
 	void getTransform(D3DXVECTOR3, float, D3DXVECTOR3);
 	void updateColliosnPos(D3DXVECTOR3);
+	void updateColliosnPosition(D3DXVECTOR3);
 	D3DXMATRIX resetSetting();
 
 private:

@@ -31,6 +31,7 @@ GraphicsClass::GraphicsClass()
 	OnRight = 0;
 	OnUp = 0;
 	OnDown = 0;
+	OnPlank = 0;
 	lastPosition;
 }
 
@@ -113,7 +114,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
 
-	const int NumOfModel = 10;
+	const int NumOfModel = 29;
 
 	WCHAR*	models[NumOfModel] = {
 		L"../Engine/data/Stone.obj",
@@ -123,9 +124,30 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		L"../Engine/data/FantasyHouse.obj",
 		L"../Engine/data/Chest.obj",
 		L"../Engine/data/tree.obj",
-		L"../Engine/data/planks.obj",
 		L"../Engine/data/War_Tower.obj",
 		L"../Engine/data/Portal.obj",
+
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
+		L"../Engine/data/planks.obj",
 
 	};
 	WCHAR* modelTextures[NumOfModel] = {
@@ -136,9 +158,30 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		L"../Engine/data/FantasyHouse.dds",
 		L"../Engine/data/Chest.dds",
 		L"../Engine/data/tree.jpg",
-		L"../Engine/data/planks.dds",
 		L"../Engine/data/War_Tower.jpeg",
 		L"../Engine/data/Portal.png",
+
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",	
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
+		L"../Engine/data/planks.dds",
 	};
 
 	D3DXVECTOR3 positions[] = {
@@ -149,9 +192,30 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		{ 800.0f, 20.0f, 200.0f},
 		{ -50.0f, 0.0f, 0.0f},
 		{ -50.0f, 0.0f, 150.0f},
-		{ 90.0f, 0.0f, 105.0f},
 		{ 280.0f, 0.0f, -150.0f},
 		{ 280.0f, 130.0f, 700.0f},
+
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
+		{ 595.0f, 0.0f, 35.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
@@ -162,13 +226,36 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		{ 10.0f, 10.0f, 10.0f},
 		{ 0.1f, 0.1f, 0.1f},
 		{ 0.5f, 0.5f, 0.5f},
-		{ 0.39f, 0.39f, 0.39},
 		{ 50.0f, 80.0f, 50.0f},
 		{ 2.0f, 2.0f, 2.0f},
+
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
+		{ 0.39f, 0.39f, 0.39},
 	};
 
 	float Rotation[] = {
-		0.0f, 180.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+		0.0f, 180.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f,	0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f,	0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 	};
 
 
@@ -188,7 +275,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		}
 		m_Models.push_back(newModel);
 	}
-	// Create the model transform.
+
+	// 바닥 타일 포지션
 	for (int i = 0; i < 9; ++i)
 	{
 		for (int i = 0; i < 9; ++i)
@@ -208,7 +296,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		positions[0].x = 0.0f;
 		positions[0] += {0.0f, 0.0f, 70.0f};
 	}
-	//creat game model
+
+	// 모델 포지션
 	for (int i = 1; i < NumOfModel; ++i)
 	{
 		m_D3D->GetWorldMatrix(objMat);
@@ -222,26 +311,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		m_objMatrices.push_back(objMat);
 
 		m_Models[i]->scalingCollison(scales[i]);
-		m_Models[i]->rotationCollison(Rotation[i]);
 		m_Models[i]->updateColliosnPos(positions[i]);
 		m_Models[i]->getTransform(positions[i], Rotation[i], scales[i]);
-	}
-	
-	//creat fance
-	for (int i = NumOfModel-1; i < 9; ++i)
-	{
-		m_D3D->GetWorldMatrix(objMat);
-
-		D3DXMatrixIdentity(&scaleMat);
-		D3DXMatrixTranslation(&objMat, positions[0].x, positions[0].y, positions[0].z);
-		D3DXMatrixScaling(&scaleMat, scales[0].x, scales[0].y, scales[0].z);
-		D3DXMatrixRotationY(&rotationMat, Rotation[0] * (PI / 180));
-		D3DXMatrixMultiply(&rotationMat, &scaleMat, &rotationMat);
-		D3DXMatrixMultiply(&objMat, &rotationMat, &objMat);
-
-		m_objMatrices.push_back(objMat);
-
-		positions[NumOfModel-1] += {70.0f, 0.0f, 0.0f};
 	}
 
 	// Create the light shader object.
@@ -553,6 +624,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 
 	if (m_Input->GetKeyDown(KeyCode::ENTER) && point == 0)
 	{
+
 		if (OnState == OnPlayer)
 		{
 			m_orcVoice->PlayWaveFile(-2000, false);
@@ -565,138 +637,61 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 		}
 	}
 
+	if (m_Input->GetKeyDown(KeyCode::R))
+	{
+		int num = 9;
+		D3DXVECTOR3 position = m_Models[num - 8]->position;
+		position += {35.0f, -8.0f, 35.0f};
+		if (OnPlank)
+			OnPlank = false;
+		else
+		{
+			m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
+			m_Models[num]->position = position;
+			m_Models[num]->updateColliosnPosition(position);
+			OnPlank = true;;
+		}
+	}
+
+
+	if (m_Input->GetKeyDown(KeyCode::LSHFIT)&&OnPlank)
+	{
+		int num = 9;
+		m_Models[num]->rotation += 90;
+		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, m_Models[num]->rotation);
+		m_Models[num]->rotationCollison(90);
+	}
+
+
 	if (m_Input->GetKeyDown(KeyCode::LEFTARROW) && point == 0)
-	{
-		int num;
-		point = 70;
-		m_step->PlayWaveFile(-2000, false);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		lastPosition = m_Models[num]->position;
-		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, 90.0f);
-
-		OnLeft = true;
-	}
-
-	if (OnLeft)
-	{
-		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { -1.0f, 0.0f, 0.0f };
-		int num;
-		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
-		m_Models[num]->updateColliosnPos(position);
-		point--;
-		if (point == 0)
-			OnLeft = false;
-	}
+		MoveObject({ -70.0f, 0.0f, 0.0f });
 
 	if (m_Input->GetKeyDown(KeyCode::RIGHTARROW) && point == 0)
-	{
-		int num;
-		point = 70;
-		m_step->PlayWaveFile(-2000, false);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		lastPosition = m_Models[num]->position;
-		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, -90.0f);
-
-		OnRight = true;
-	}
-
-	if (OnRight)
-	{
-		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 1.0f, 0.0f, 0.0f };
-		int num;
-		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
-		m_Models[num]->updateColliosnPos(position);
-		point--;
-		if (point == 0)
-			OnRight = false;
-	}
+		MoveObject({ 70.0f, 0.0f, 0.0f });
 
 	if (m_Input->GetKeyDown(KeyCode::UPARROW) && point == 0)
-	{
-		int num;
-		point = 70;
-		m_step->PlayWaveFile(-2000, false);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		lastPosition = m_Models[num]->position;
-		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, 180.0f);
-
-		OnUp = true;
-	}
-
-	if (OnUp)
-	{
-		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 0.0f, 0.0f, 1.0f };
-		int num;
-		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
-		m_Models[num]->updateColliosnPos(position);
-		point--;
-		if (point == 0)
-			OnUp = false;
-	}
-
+		MoveObject({ 0.0f, 0.0f, 70.0f });
 
 	if (m_Input->GetKeyDown(KeyCode::DOWNARROW) && point == 0)
-	{
-		int num;
-		point = 70;
-		m_step->PlayWaveFile(-2000, false);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		lastPosition = m_Models[num]->position;
-		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, 0.0f);
+		MoveObject({ 0.0f, 0.0f, -70.0f });
 
-		OnDown = true;
-	}
+
+	if (OnLeft)
+		MoveCharacter({ -1.0f, 0.0f, 0.0f });
+
+	if (OnRight)
+		MoveCharacter({ 1.0f, 0.0f, 0.0f });
+
+	if (OnUp)
+		MoveCharacter({ 0.0f, 0.0f, 1.0f });
 
 	if (OnDown)
-	{
-		D3DXMATRIX objMat;
-		D3DXVECTOR3 position = { 0.0f, 0.0f, -1.0f };
-		int num;
-		D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
-		if (OnState == OnPlayer)
-			num = 1;
-		else
-			num = 2;
-		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
-		m_Models[num]->updateColliosnPos(position);
-		point--;
-		if (point == 0)
-			OnDown = false;
-	}
+		MoveCharacter({ 0.0f, 0.0f, -1.0f });
+
 
 
 	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[7]))//적
+	if (m_Models[1]->AABBToAABB(m_Models[9]))//적
 	{
 		if (OnUp || OnDown || OnLeft || OnRight)
 		{
@@ -713,7 +708,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 
 	}
 	//오브젝트 충돌
-	if (m_Models[2]->AABBToAABB(m_Models[7]))//적
+	if (m_Models[2]->AABBToAABB(m_Models[9]))//적
 	{
 		if (OnUp || OnDown || OnLeft || OnRight)
 		{
@@ -908,21 +903,6 @@ bool GraphicsClass::Render(float rotation)
 		}
 	}
 
-	// creat fance
-	for (int i = m_Models.size()-1; i < 15; i++)
-	{
-		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-		m_Models[m_Models.size() - 1]->Render(m_D3D->GetDeviceContext());
-
-		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[m_Models.size() - 1]->GetIndexCount(), m_objMatrices[9 + 80], viewMatrix, projectionMatrix,
-			m_Models[m_Models.size() - 1]->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-			m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
-
-		if (!result)
-		{
-			return false;
-		}
-	}
 
 	// Turn on the alpha blending before rendering the text.
 	m_D3D->TurnOnAlphaBlending();
@@ -966,4 +946,82 @@ D3DXMATRIX GraphicsClass::Translate(ModelClass* model, D3DXVECTOR3 position, D3D
 	//model->getTransform(position, rotation, scale);
 
 	return objMat;
+}
+
+
+void GraphicsClass::MoveCharacter(D3DXVECTOR3 position)
+{
+	D3DXMATRIX objMat;
+	int num;
+	D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+	if (OnState == OnPlayer)
+		num = 1;
+	else
+		num = 2;
+
+	// (-1.0f, 0.0f, 0.0f) 만큼 상대이동
+	D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
+	m_Models[num]->updateColliosnPos(position);
+	point--;
+	if (point == 0)
+		OnLeft = OnRight = OnDown = OnUp = false;
+}
+
+
+
+void GraphicsClass::MoveObject(D3DXVECTOR3 position)
+{
+	D3DXMATRIX objMat;
+	D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
+
+	int num;
+	float rotaiotn;
+	point = 70;
+	if (OnState == OnPlayer)
+		num = 1;
+	else
+		num = 2;
+
+	if (OnPlank)
+	{
+		num = 9;
+		lastPosition = m_Models[num]->position;
+		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, m_Models[num]->rotation);
+
+
+		D3DXMatrixMultiply(&m_objMatrices[num + 80], &m_objMatrices[num + 80], &objMat);
+		m_Models[num]->updateColliosnPos(position);
+		point = 0;
+	}
+
+	else
+	{
+		m_step->PlayWaveFile(-2000, false); // 발소리 재생
+		//이동전 좌표  기억
+		lastPosition = m_Models[num]->position;
+
+
+		if (position.x == 70.0f)
+		{
+			OnRight = true;
+			rotaiotn = -90.0f;
+		}
+		if (position.x == -70.0f)
+		{
+			OnLeft = true;
+			rotaiotn = 90.0f;
+		}
+		if (position.z == 70.0f)
+		{
+			OnUp = true;
+			rotaiotn = 180.0f;
+		}
+		if (position.z == -70.0f)
+		{
+			OnDown = true;
+			rotaiotn = 0.0f;
+		}
+
+		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, rotaiotn);
+	}
 }
