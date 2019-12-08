@@ -76,6 +76,9 @@ private:
 	int					 m_numOfPolygons;
 	
 	int					point;
+	int					numOfPlankP;
+	int					numOfPlankM;
+
 	float				playerPosZ;
 	State			   	OnState;
 	bool				OnLeft;

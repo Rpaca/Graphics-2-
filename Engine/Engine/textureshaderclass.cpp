@@ -25,11 +25,11 @@ TextureShaderClass::~TextureShaderClass()
 }
 
 
-bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd, D3DXMATRIX	baseViewMatrix)
 {
 	bool result;
 
-
+	m_baseViewMatrix = baseViewMatrix;
 	// Initialize the vertex and pixel shaders.
 	result = InitializeShader(device, hwnd, L"../Engine/texture.vs", L"../Engine/texture.ps");
 	if(!result)
@@ -57,7 +57,7 @@ bool TextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCou
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(deviceContext, worldMatrix, m_baseViewMatrix, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;

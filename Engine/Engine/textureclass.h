@@ -23,6 +23,7 @@ public:
 
 private:
 	ID3D11ShaderResourceView* m_texture;
+	D3DXMATRIX			m_baseViewMatrix;
 };
 
 #endif

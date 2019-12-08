@@ -23,7 +23,7 @@ public:
 	TextureShaderClass(const TextureShaderClass&);
 	~TextureShaderClass();
 
-	bool Initialize(ID3D11Device*, HWND);
+	bool Initialize(ID3D11Device*, HWND, D3DXMATRIX);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*);
 
@@ -36,6 +36,9 @@ private:
 	void RenderShader(ID3D11DeviceContext*, int);
 
 private:
+	D3DXMATRIX m_baseViewMatrix;
+
+	ID3D11ShaderResourceView* m_texture;
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;

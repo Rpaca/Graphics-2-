@@ -26,6 +26,8 @@ GraphicsClass::GraphicsClass()
 	EnmeyPoint = 0;
 	OnState = OnPlayer;
 
+	numOfPlankP = 0;
+	numOfPlankM = 0;
 	point = 0;
 	OnLeft = 0;
 	OnRight = 0;
@@ -113,6 +115,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, 0.0f);
+	// Initialize a base view matrix with the camera for 2D user interface rendering.
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(baseViewMatrix);
+	m_Camera->SetPosition(-110.0f, 80.0f, 0.0f);
 
 	const int NumOfModel = 29;
 
@@ -195,27 +201,27 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		{ 280.0f, 0.0f, -150.0f},
 		{ 280.0f, 130.0f, 700.0f},
 
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
 
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
-		{ 595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
+		{ 5595.0f, 0.0f, 35.0f},
 	};
 
 	D3DXVECTOR3 scales[] = {
@@ -388,7 +394,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 	// Initialize the texture shader object.
-	result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd);
+	result = m_TextureShader->Initialize(m_D3D->GetDevice(), hwnd, baseViewMatrix);
 
 	if (!result)
 	{
@@ -396,24 +402,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
-	//// Create the bitmap object.
-	//m_Bitmap = new BitmapClass;
-	//if (!m_Bitmap)
-	//{
-	//	return false;
-	//}
-	//// Initialize the bitmap object.
-	//result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/seafloor.dds", screenWidth, screenHeight);
-	//if (!result)
-	//{
-	//	MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
-	//	return false;
-	//}
 
 
-	// Initialize a base view matrix with the camera for 2D user interface rendering.
-	m_Camera->Render();
-	m_Camera->GetViewMatrix(baseViewMatrix);
 
 	// Create the text object
 	m_Text = new TextClass;
@@ -429,6 +419,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+	// Create the bitmap object.
+	m_Bitmap = new BitmapClass;
+	if (!m_Bitmap)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/Pillar.dds", 2048, 2048);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+
 	m_Skybox = new SkyboxClass;
 	if (!m_Skybox)
 	{
@@ -442,9 +447,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
-	m_Camera->SetPosition(-110.0f, 80.0f, 0.0f);
-	m_Camera->Yaw(1.5708f);
-	m_Camera->Pitch(0.75f);
 
 
 	return true;
@@ -495,13 +497,13 @@ void GraphicsClass::Shutdown()
 		m_D3D = 0;
 	}
 
-	////Release the bitmap object.
-	//if (m_Bitmap)
-	//{
-	//	m_Bitmap->Shutdown();
-	//	delete m_Bitmap;
-	//	m_Bitmap = 0;
-	//}
+	//Release the bitmap object.
+	if (m_Bitmap)
+	{
+		m_Bitmap->Shutdown();
+		delete m_Bitmap;
+		m_Bitmap = 0;
+	}
 
 	// Release the texture shader object.
 	if (m_TextureShader)
@@ -539,84 +541,6 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	m_Camera->Pitch(deltaY * frameTime * 0.00018f);
 
 
-	//공 이동
-	//D3DXVECTOR3 A = {m_Models[1]->speed*m_Models[1]->forward.x, m_Models[1]->speed*m_Models[1]->forward.y,m_Models[1]->speed* m_Models[1]->forward.z };
-	//D3DXMatrixTranslation(&forward, m_Models[1]->speed*m_Models[1]->forward.x, m_Models[1]->forward.y, m_Models[1]->forward.z);
-	//D3DXMatrixMultiply(&m_objMatrices[1], &m_objMatrices[1], &forward);
-	//m_Models[1]->translateCollison(A);
-	//m_Models[1]->updateColliosnPos(A);
-
-	//몬스터 ai
-	//float random = rand() % 3 -1;
-	//m_objMatrices[7] = m_Models[7]->translatePosition({ m_Models[7]->position.x, m_Models[7]->position.y , (float)m_Models[1]->position.z*0.9f});
-
-	//if (m_Models[7]->position.z > m_Models[1]->position.z + 1)
-	//{
-	//	D3DXMATRIX objMat;
-	//	D3DXVECTOR3 position = { 0.0f, 0.0f, -0.3f };//left
-	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, -0.3f);
-	//	D3DXMatrixMultiply(&m_objMatrices[7], &m_objMatrices[7], &objMat);
-	//	m_Models[7]->updateColliosnPos(position);
-	//}
-	//else if (m_Models[7]->position.z < m_Models[1]->position.z - 1)
-	//{
-	//	D3DXMATRIX objMat;
-	//	D3DXVECTOR3 position = { 0.0f, 0.0f, 0.3f };//left
-	//	D3DXMatrixTranslation(&objMat, 0.0f, 0.0f, 0.3f);
-	//	D3DXMatrixMultiply(&m_objMatrices[7], &m_objMatrices[7], &objMat);
-	//	m_Models[7]->updateColliosnPos(position);
-	//}
-
-	////오브젝트 충돌
-	//if (m_Models[1]->AABBToAABB(m_Models[2]))//L
-	//{
-	//	m_Models[1]->reflect({0,0,1});
-	//	m_gunShot->PlayWaveFile(-2000, false);
-	//}
-
-	////오브젝트 충돌
-	//if (m_Models[1]->AABBToAABB(m_Models[3]))//R
-	//{
-	//	m_Models[1]->reflect({ 0,0,-1 });
-	//	m_gunShot->PlayWaveFile(-2000, false);
-	//}
-
-	////오브젝트 충돌
-	//if (m_Models[1]->AABBToAABB(m_Models[4]))//B
-	//{
-	//	m_Models[1]->reflect({ 1,0,0 });
-	//	m_gunShot->PlayWaveFile(-2000, false);
-	//	EnmeyPoint++;
-	//	m_objMatrices[1] = m_Models[1]->resetSetting();
-	//	m_objMatrices[7] = m_Models[7]->translatePosition({ m_Models[7]->position.x, m_Models[7]->position.y , (float)m_Models[1]->position.z });
-	//}
-
-	////오브젝트 충돌
-	//if (m_Models[1]->AABBToAABB(m_Models[5]))//F
-	//{
-	//	m_Models[1]->reflect({ -1,0,0 });
-	//	m_gunShot->PlayWaveFile(-2000, false);
-	//	playerPoint++;
-	//	m_objMatrices[1] = m_Models[1]->resetSetting();
-	//	m_objMatrices[7] = m_Models[7]->translatePosition({ m_Models[7]->position.x, m_Models[7]->position.y , (float)m_Models[1]->position.z });
-	//}
-
-
-	////오브젝트 충돌
-	//if (m_Models[1]->AABBToAABB(m_Models[6]))//나
-	//{
-	//	float x;
-	//	x = -2 + rand() % 4;
-	//	x = x * 0.3f;
-
-	//	m_Models[1]->reflect({ 1,0,0 });
-	//	m_Models[1]->forward += {0, 0, x};
-
-	//	m_gunShot->PlayWaveFile(-2000, false);
-	//}
-
-
-
 	if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
 	if (m_Input->GetKey(KeyCode::A)) m_Camera->Strafe(-dir * frameTime);
 	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
@@ -635,18 +559,38 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			m_manVoice->PlayWaveFile(-2000, false);
 			OnState = OnPlayer;
 		}
+
+		if (OnPlank)
+		{
+			if (OnState == OnPlayer)
+				numOfPlankP++;
+			if (OnState == OnEnumy)
+				numOfPlankM++;
+			OnPlank = false;
+		}
 	}
 
 	if (m_Input->GetKeyDown(KeyCode::R))
 	{
-		int num = 9;
-		D3DXVECTOR3 position = m_Models[num - 8]->position;
+		int num = 9 + numOfPlankM + numOfPlankP;
+		D3DXVECTOR3 position;
+		if(OnState == OnPlayer)
+			position = m_Models[1]->position;
+		if (OnState == OnEnumy)
+			position = m_Models[2]->position;
 		position += {35.0f, -8.0f, 35.0f};
+
 		if (OnPlank)
+		{
+			position = { -500.0f, -500.0f, -500.0f };
+			m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
+			m_Models[num]->position = position;
+			m_Models[num]->updateColliosnPosition(position);
 			OnPlank = false;
+		}
 		else
 		{
-			m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
+			m_objMatrices[num +  80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
 			m_Models[num]->position = position;
 			m_Models[num]->updateColliosnPosition(position);
 			OnPlank = true;;
@@ -656,7 +600,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 
 	if (m_Input->GetKeyDown(KeyCode::LSHFIT)&&OnPlank)
 	{
-		int num = 9;
+		int num = 9 + numOfPlankM + numOfPlankP;
 		m_Models[num]->rotation += 90;
 		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, m_Models[num]->rotation);
 		m_Models[num]->rotationCollison(90);
@@ -806,21 +750,7 @@ bool GraphicsClass::Render(float rotation)
 	// Turn off the Z buffer to begin all 2D rendering.
 	m_D3D->TurnZBufferOff();
 
-	//// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	//result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 0, 0);
-	//if (!result)
-	//{
-	//	return false;
-	//}
-
-	//// Render the bitmap with the texture shader.
-	//result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
-	//if (!result)
-	//{
-	//	return false;
-	//}
-		// Set the frames per second.
-
+	// Set the frames per second.
 	m_Skybox->Render(m_D3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix);
 
 
@@ -903,9 +833,27 @@ bool GraphicsClass::Render(float rotation)
 		}
 	}
 
-
+	// Turn off the Z buffer to begin all 2D rendering.
+	m_D3D->TurnZBufferOff();
 	// Turn on the alpha blending before rendering the text.
 	m_D3D->TurnOnAlphaBlending();
+
+
+	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+
+	// Render the bitmap with the texture shader.
+	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(),
+		worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+
+	if (!result)
+	{
+		return false;
+	}
 
 	// Render the text strings.
 	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
@@ -916,7 +864,7 @@ bool GraphicsClass::Render(float rotation)
 
 
 
-
+	m_D3D->TurnOffAlphaBlending();
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
@@ -984,7 +932,7 @@ void GraphicsClass::MoveObject(D3DXVECTOR3 position)
 
 	if (OnPlank)
 	{
-		num = 9;
+		num = 9 + numOfPlankM + numOfPlankP;
 		lastPosition = m_Models[num]->position;
 		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, m_Models[num]->rotation);
 
