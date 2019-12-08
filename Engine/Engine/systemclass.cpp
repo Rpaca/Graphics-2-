@@ -65,22 +65,22 @@ bool SystemClass::Initialize()
 	}
 
 
-	// Create the sound object.
-	m_BGM = new Sound;
-	if (!m_BGM)
-	{
-		return false;
-	}
-	// Initialize the sound object.
-	result = m_BGM->Initialize(m_hwnd, "../Engine/data/BGM1.wav");
-	if (!result)
-	{
-		MessageBox(m_hwnd, L"Could not initialize Direct Sound.", L"Error", MB_OK);
-		return false;
-	}
+	//// Create the sound object.
+	//m_BGM = new Sound;
+	//if (!m_BGM)
+	//{
+	//	return false;
+	//}
+	//// Initialize the sound object.
+	//result = m_BGM->Initialize(m_hwnd, "../Engine/data/BGM1.wav");
+	//if (!result)
+	//{
+	//	MessageBox(m_hwnd, L"Could not initialize Direct Sound.", L"Error", MB_OK);
+	//	return false;
+	//}
 
 
-	m_BGM->PlayWaveFile(-1000, true);
+	//m_BGM->PlayWaveFile(-1000, true);
 
 	// Create the fps object.
 	m_Fps = new FpsClass;
@@ -136,12 +136,12 @@ void SystemClass::Shutdown()
 	}
 
 	// Release the sound object.
-	if (m_BGM)
-	{
-		m_BGM->Shutdown();
-		delete m_BGM;
-		m_BGM = 0;
-	}
+	//if (m_BGM)
+	//{
+	//	m_BGM->Shutdown();
+	//	delete m_BGM;
+	//	m_BGM = 0;
+	//}
 
 	// Release the timer object.
 	if (m_Timer)

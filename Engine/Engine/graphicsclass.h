@@ -63,13 +63,45 @@ private:
 	PointLightShaderClass* m_PointLightShader;
 	PointLightClass* m_PointLight;
 	D3DXVECTOR3 lastPosition;
+	Sound				*m_bgm;
 	Sound				*m_step;
 	Sound				*m_manVoice;
 	Sound				*m_orcVoice;
 
 	InputClass* m_Input;
 	TextureShaderClass* m_TextureShader;
-	BitmapClass* m_Bitmap;
+
+	BitmapClass* m_OnPlayer1;
+	BitmapClass* m_OnPlayer2;
+
+	BitmapClass* P0;
+	BitmapClass* P1;
+	BitmapClass* P2;
+	BitmapClass* P3;
+	BitmapClass* P4;
+	BitmapClass* P5;
+	BitmapClass* P6;
+	BitmapClass* P7;
+	BitmapClass* P8;
+	BitmapClass* P9;
+
+	BitmapClass* M0;
+	BitmapClass* M1;
+	BitmapClass* M2;
+	BitmapClass* M3;
+	BitmapClass* M4;
+	BitmapClass* M5;
+	BitmapClass* M6;
+	BitmapClass* M7;
+	BitmapClass* M8;
+	BitmapClass* M9;
+
+	BitmapClass* start;
+	BitmapClass* info;
+	BitmapClass* player1W;
+	BitmapClass* player2W;
+
+
 	TextClass* m_Text;
 	SkyboxClass* m_Skybox;
 	vector<D3DXMATRIX>	 m_objMatrices;
@@ -87,6 +119,12 @@ private:
 	bool				OnDown;
 	bool				OnPlank;
 
+	bool				isStart;
+	bool				isInfo;
+	bool				IsEnd;
+	bool				isPlayer1Win;
+
+	bool				isMoved;
 
 	void				MoveCharacter(D3DXVECTOR3);
 	void				MoveObject(D3DXVECTOR3);

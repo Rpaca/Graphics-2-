@@ -14,7 +14,8 @@ GraphicsClass::GraphicsClass()
 	m_LightShader = 0;
 	m_Light = 0;
 	m_TextureShader = 0;
-	m_Bitmap = 0;
+	m_OnPlayer1 = 0;
+	m_OnPlayer2 = 0;
 	m_Text = 0;
 	m_Input = 0;
 	m_numOfPolygons = 0;
@@ -35,6 +36,12 @@ GraphicsClass::GraphicsClass()
 	OnDown = 0;
 	OnPlank = 0;
 	lastPosition;
+	isMoved = 0;
+
+	isStart = 0;
+	isInfo = 0;
+	IsEnd = 0;
+	isPlayer1Win = 0;
 }
 
 
@@ -94,6 +101,17 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+	m_bgm = new Sound;
+	if (!m_manVoice)
+	{
+		return false;
+	}
+	result = m_bgm->Initialize(hwnd, "../Engine/data/BGM1.wav");
+	if (!result)
+	{
+		return false;
+	}
+
 	m_step = new Sound;
 	if (!m_manVoice)
 	{
@@ -105,6 +123,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+	m_bgm->PlayWaveFile(-2000, false); // 
 
 	// Create the camera object.
 	m_Camera = new CameraClass;
@@ -118,7 +137,10 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Initialize a base view matrix with the camera for 2D user interface rendering.
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
-	m_Camera->SetPosition(-110.0f, 80.0f, 0.0f);
+	m_Camera->SetPosition(262.0f, 475.0f, -165.0f);
+	m_Camera->Pitch(0.8f);
+
+
 
 	const int NumOfModel = 29;
 
@@ -402,8 +424,68 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+	if (!isStart)
+	{
+		// Create the bitmap object.
+		start = new BitmapClass;
+		if (!start)
+		{
+			return false;
+		}
+		// Initialize the bitmap object.
+		result = start->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/start.jpg", screenWidth, screenHeight);
+		if (!result)
+		{
+			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+			return false;
+		}
+	}
+
+	if (!isInfo)
+	{
+		// Create the bitmap object.
+		info = new BitmapClass;
+		if (!info)
+		{
+			return false;
+		}
+		// Initialize the bitmap object.
+		result = info->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/info.jpg", screenWidth, screenHeight);
+		if (!result)
+		{
+			MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+			return false;
+		}
+	}
 
 
+
+	player1W = new BitmapClass;
+	if (!player1W)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = player1W->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/player1W.jpg", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+	player2W = new BitmapClass;
+	if (!player2W)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = player2W->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/player2W.jpg", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
 
 	// Create the text object
 	m_Text = new TextClass;
@@ -420,18 +502,314 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 	// Create the bitmap object.
-	m_Bitmap = new BitmapClass;
-	if (!m_Bitmap)
+	m_OnPlayer1 = new BitmapClass;
+	if (!m_OnPlayer1)
 	{
 		return false;
 	}
 	// Initialize the bitmap object.
-	result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/Pillar.dds", 2048, 2048);
+	result = m_OnPlayer1->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/player1.dds", screenWidth, screenHeight);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 		return false;
 	}
+
+	// Create the bitmap object.
+	m_OnPlayer2 = new BitmapClass;
+	if (!m_OnPlayer1)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = m_OnPlayer2->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/player2.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P0 = new BitmapClass;
+	if (!P0)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P0->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P0.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P1 = new BitmapClass;
+	if (!P1)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P1->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P1.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P2 = new BitmapClass;
+	if (!P2)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P2->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P2.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P3 = new BitmapClass;
+	if (!P3)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P3->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P3.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P4 = new BitmapClass;
+	if (!P4)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P4->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P4.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P5 = new BitmapClass;
+	if (!P5)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P5->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P5.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the bitmap object.
+	P6 = new BitmapClass;
+	if (!P6)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P6->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P6.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P7 = new BitmapClass;
+	if (!P7)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P7->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P7.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	P8 = new BitmapClass;
+	if (!P8)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P8->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P8.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the bitmap object.
+	P9 = new BitmapClass;
+	if (!P9)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = P9->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/P9.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+	// Create the bitmap object.
+	M0 = new BitmapClass;
+	if (!M0)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M0->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M0.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	M1 = new BitmapClass;
+	if (!M1)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M1->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M1.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	M2 = new BitmapClass;
+	if (!M2)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M2->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M2.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	M3 = new BitmapClass;
+	if (!M3)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M3->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M3.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	M4 = new BitmapClass;
+	if (!M4)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M4->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M4.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	M5 = new BitmapClass;
+	if (!M5)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M5->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M5.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the bitmap object.
+	M6 = new BitmapClass;
+	if (!M6)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M6->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M6.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	M7 = new BitmapClass;
+	if (!M7)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M7->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M7.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the bitmap object.
+	M8 = new BitmapClass;
+	if (!M8)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M8->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M8.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the bitmap object.
+	M9 = new BitmapClass;
+	if (!M9)
+	{
+		return false;
+	}
+	// Initialize the bitmap object.
+	result = M9->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../Engine/data/M9.dds", screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+
+
+
 
 
 	m_Skybox = new SkyboxClass;
@@ -498,11 +876,19 @@ void GraphicsClass::Shutdown()
 	}
 
 	//Release the bitmap object.
-	if (m_Bitmap)
+	if (m_OnPlayer1)
 	{
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
+		m_OnPlayer1->Shutdown();
+		delete m_OnPlayer1;
+		m_OnPlayer1 = 0;
+	}
+
+	//Release the bitmap object.
+	if (m_OnPlayer2)
+	{
+		m_OnPlayer2->Shutdown();
+		delete m_OnPlayer2;
+		m_OnPlayer2 = 0;
 	}
 
 	// Release the texture shader object.
@@ -540,24 +926,23 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	m_Camera->Yaw(deltaX * frameTime * 0.00018f);
 	m_Camera->Pitch(deltaY * frameTime * 0.00018f);
 
-
-	if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
-	if (m_Input->GetKey(KeyCode::A)) m_Camera->Strafe(-dir * frameTime);
-	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
-	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
-
 	if (m_Input->GetKeyDown(KeyCode::ENTER) && point == 0)
 	{
-
-		if (OnState == OnPlayer)
+		if(!isStart)
 		{
-			m_orcVoice->PlayWaveFile(-2000, false);
-			OnState = OnEnumy;
+			isStart = true;
+			return true;
 		}
-		else
+
+		if (!isInfo)
 		{
-			m_manVoice->PlayWaveFile(-2000, false);
-			OnState = OnPlayer;
+			isInfo = true;
+			return true;
+		}
+
+		if (IsEnd)
+		{
+			return true;
 		}
 
 		if (OnPlank)
@@ -568,34 +953,124 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 				numOfPlankM++;
 			OnPlank = false;
 		}
-	}
 
-	if (m_Input->GetKeyDown(KeyCode::R))
-	{
-		int num = 9 + numOfPlankM + numOfPlankP;
-		D3DXVECTOR3 position;
-		if(OnState == OnPlayer)
-			position = m_Models[1]->position;
-		if (OnState == OnEnumy)
-			position = m_Models[2]->position;
-		position += {35.0f, -8.0f, 35.0f};
-
-		if (OnPlank)
+		if (OnState == OnPlayer)
 		{
-			position = { -500.0f, -500.0f, -500.0f };
-			m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
-			m_Models[num]->position = position;
-			m_Models[num]->updateColliosnPosition(position);
-			OnPlank = false;
+			m_orcVoice->PlayWaveFile(-2000, false);
+			OnState = OnEnumy;
+			isMoved = false;
+
+			m_Camera->SetPosition(262.0f, 475.0f, 720.0f);
+			m_Camera->Yaw(3.14159f);
 		}
 		else
 		{
-			m_objMatrices[num +  80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
-			m_Models[num]->position = position;
-			m_Models[num]->updateColliosnPosition(position);
-			OnPlank = true;;
+			m_manVoice->PlayWaveFile(-2000, false);
+			OnState = OnPlayer;
+			isMoved = false;
+
+			m_Camera->SetPosition(262.0f, 475.0f, -165.0f);
+			m_Camera->Yaw(3.14159f);
 		}
+
 	}
+
+	if (!isStart)
+	{
+		// Render the graphics scene.
+		result = Render(rotation);
+		if (!result)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	if (!isInfo)
+	{
+		// Render the graphics scene.
+		result = Render(rotation);
+		if (!result)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	if (IsEnd)
+	{
+		// Render the graphics scene.
+		result = Render(rotation);
+		if (!result)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+
+	if (m_Input->GetKey(KeyCode::W)) m_Camera->MoveForward(dir * frameTime);
+	if (m_Input->GetKey(KeyCode::A)) m_Camera->Strafe(-dir * frameTime);
+	if (m_Input->GetKey(KeyCode::S)) m_Camera->MoveForward(-dir * frameTime);
+	if (m_Input->GetKey(KeyCode::D)) m_Camera->Strafe(dir * frameTime);
+
+	
+
+
+	if (m_Input->GetKeyDown(KeyCode::R) && !isMoved)
+	{
+		int num = 9 + numOfPlankM + numOfPlankP;
+		D3DXVECTOR3 position;
+		if (OnState == OnPlayer && numOfPlankP < 10)
+		{
+			position = m_Models[1]->position;
+			position += {35.0f, -8.0f, 35.0f};
+
+			if (OnPlank)
+			{
+				position = { -500.0f, -500.0f, -500.0f };
+				m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
+				m_Models[num]->position = position;
+				m_Models[num]->updateColliosnPosition(position);
+				OnPlank = false;
+			}
+			else
+			{
+				m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
+				m_Models[num]->position = position;
+				m_Models[num]->updateColliosnPosition(position);
+				OnPlank = true;;
+			}
+		}
+
+
+		if (OnState == OnEnumy && numOfPlankM < 10)
+		{
+			position = m_Models[2]->position;
+			position += {35.0f, -8.0f, -35.0f};
+
+			if (OnPlank)
+			{
+				position = { -500.0f, -500.0f, -500.0f };
+				m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
+				m_Models[num]->position = position;
+				m_Models[num]->updateColliosnPosition(position);
+				OnPlank = false;
+			}
+			else
+			{
+				m_objMatrices[num + 80] = Translate(m_Models[num], position, m_Models[num]->scale, m_Models[num]->rotation);
+				m_Models[num]->position = position;
+				m_Models[num]->updateColliosnPosition(position);
+				OnPlank = true;;
+			}
+		}
+
+	}
+
 
 
 	if (m_Input->GetKeyDown(KeyCode::LSHFIT)&&OnPlank)
@@ -635,7 +1110,42 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 
 
 	//오브젝트 충돌
-	if (m_Models[1]->AABBToAABB(m_Models[9]))//적
+	for (int i = 0; i < 20; i++)
+	{
+		if (m_Models[1]->AABBToAABB(m_Models[9+i]))//적
+		{
+			if (OnUp || OnDown || OnLeft || OnRight)
+			{
+				D3DXVECTOR3 position = lastPosition;
+				point = 0;
+				OnUp = false;
+				OnDown = false;
+				OnLeft = false;
+				OnRight = false;
+				m_objMatrices[1 + 80] = Translate(m_Models[1], position, m_Models[1]->scale, m_Models[1]->rotation);
+				m_Models[1]->translatePosition(position);
+				isMoved = false;
+			}
+		}
+		//오브젝트 충돌
+		if (m_Models[2]->AABBToAABB(m_Models[9+i]))//적
+		{
+			if (OnUp || OnDown || OnLeft || OnRight)
+			{
+				D3DXVECTOR3 position = lastPosition;
+				point = 0;
+				OnUp = false;
+				OnDown = false;
+				OnLeft = false;
+				OnRight = false;
+				m_objMatrices[2 + 80] = Translate(m_Models[2], position, m_Models[2]->scale, m_Models[2]->rotation);
+				m_Models[2]->translatePosition(position);
+				isMoved = false;
+			}
+		}
+	}
+
+	if (m_Models[1]->AABBToAABB(m_Models[2]) && OnState == OnPlayer)//적
 	{
 		if (OnUp || OnDown || OnLeft || OnRight)
 		{
@@ -647,12 +1157,11 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			OnRight = false;
 			m_objMatrices[1 + 80] = Translate(m_Models[1], position, m_Models[1]->scale, m_Models[1]->rotation);
 			m_Models[1]->translatePosition(position);
+			isMoved = false;
 		}
-
-
 	}
-	//오브젝트 충돌
-	if (m_Models[2]->AABBToAABB(m_Models[9]))//적
+
+	if (m_Models[2]->AABBToAABB(m_Models[1]) && OnState == OnEnumy)//적
 	{
 		if (OnUp || OnDown || OnLeft || OnRight)
 		{
@@ -664,6 +1173,7 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			OnRight = false;
 			m_objMatrices[2 + 80] = Translate(m_Models[2], position, m_Models[2]->scale, m_Models[2]->rotation);
 			m_Models[2]->translatePosition(position);
+			isMoved = false;
 		}
 	}
 
@@ -840,26 +1350,303 @@ bool GraphicsClass::Render(float rotation)
 
 
 	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), 0, 0);
+	result = m_OnPlayer1->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	// Put the bitmap vertex and index buffers on the graphics pipeline to prepare them for drawing.
+	result = m_OnPlayer2->Render(m_D3D->GetDeviceContext(), 0, 0);
 	if (!result)
 	{
 		return false;
 	}
 
+	if(OnState == OnPlayer)
 	// Render the bitmap with the texture shader.
-	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(),
-		worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_OnPlayer1->GetIndexCount(),
+		worldMatrix, viewMatrix, orthoMatrix, m_OnPlayer1->GetTexture());
+
+	if(OnState == OnEnumy)
+		// Render the bitmap with the texture shader.
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_OnPlayer2->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, m_OnPlayer2->GetTexture());
+
 
 	if (!result)
 	{
 		return false;
 	}
+
+
+	result = P0->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P1->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P2->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P3->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P4->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P5->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P6->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P7->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P8->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = P9->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+
+
+	result = M0->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M1->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M2->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M3->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M4->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M5->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M6->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M7->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M8->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+	result = M9->Render(m_D3D->GetDeviceContext(), 0, 0);
+	if (!result)
+	{
+		return false;
+	}
+
+	if(numOfPlankP == 0)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P0->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P0->GetTexture());
+
+
+	if (numOfPlankP == 1)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P1->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P1->GetTexture());
+
+
+	if (numOfPlankP == 2)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P2->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P2->GetTexture());
+
+
+	if (numOfPlankP == 3)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P3->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P3->GetTexture());
+
+
+	if (numOfPlankP == 4)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P4->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P4->GetTexture());
+
+
+	if (numOfPlankP == 5)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P5->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P5->GetTexture());
+
+	if (numOfPlankP == 6)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P6->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P6->GetTexture());
+
+	if (numOfPlankP == 7)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P7->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P7->GetTexture());
+
+
+	if (numOfPlankP == 8)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P8->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P8->GetTexture());
+
+
+	if (numOfPlankP == 9)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), P9->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, P9->GetTexture());
+
+
+
+
+	if (numOfPlankM == 0)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M0->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M0->GetTexture());
+
+
+	if (numOfPlankM == 1)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M1->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M1->GetTexture());
+
+
+	if (numOfPlankM == 2)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M2->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M2->GetTexture());
+
+
+	if (numOfPlankM == 3)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M3->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M3->GetTexture());
+
+
+	if (numOfPlankM == 4)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M4->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M4->GetTexture());
+
+
+	if (numOfPlankM == 5)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M5->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M5->GetTexture());
+
+	if (numOfPlankM == 6)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M6->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M6->GetTexture());
+
+	if (numOfPlankM == 7)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M7->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M7->GetTexture());
+
+
+	if (numOfPlankM == 8)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M8->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M8->GetTexture());
+
+
+	if (numOfPlankM == 9)
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), M9->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, M9->GetTexture());
 
 	// Render the text strings.
 	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
 	if (!result)
 	{
 		return false;
+	}
+
+	if (m_Models[1]->position.z >= 550)
+	{
+		IsEnd = true;
+		isPlayer1Win = true;
+	}
+	if (m_Models[2]->position.z <= 0)
+	{
+		IsEnd = true;
+	}
+
+
+
+
+	if (!isStart)
+	{
+		result = start->Render(m_D3D->GetDeviceContext(), 0, 0);
+		if (!result)
+		{
+			return false;
+		}
+
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), start->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, start->GetTexture());
+	}
+
+	if (!isInfo && isStart)
+	{
+		result = info->Render(m_D3D->GetDeviceContext(), 0, 0);
+		if (!result)
+		{
+			return false;
+		}
+
+		result = m_TextureShader->Render(m_D3D->GetDeviceContext(), info->GetIndexCount(),
+			worldMatrix, viewMatrix, orthoMatrix, info->GetTexture());
+	}
+
+	if (IsEnd)
+	{
+
+		if (isPlayer1Win)
+		{
+			result = player1W->Render(m_D3D->GetDeviceContext(), 0, 0);
+			if (!result)
+			{
+				return false;
+			}
+			result = m_TextureShader->Render(m_D3D->GetDeviceContext(), player1W->GetIndexCount(),
+				worldMatrix, viewMatrix, orthoMatrix, player1W->GetTexture());
+		}
+
+		else
+		{
+			result = player2W->Render(m_D3D->GetDeviceContext(), 0, 0);
+			if (!result)
+			{
+				return false;
+			}
+			result = m_TextureShader->Render(m_D3D->GetDeviceContext(), player2W->GetIndexCount(),
+				worldMatrix, viewMatrix, orthoMatrix, player2W->GetTexture());
+		}
 	}
 
 
@@ -919,6 +1706,8 @@ void GraphicsClass::MoveCharacter(D3DXVECTOR3 position)
 
 void GraphicsClass::MoveObject(D3DXVECTOR3 position)
 {
+	if (isMoved)
+		return;
 	D3DXMATRIX objMat;
 	D3DXMatrixTranslation(&objMat, position.x, position.y, position.z);
 
@@ -942,12 +1731,12 @@ void GraphicsClass::MoveObject(D3DXVECTOR3 position)
 		point = 0;
 	}
 
-	else
+	if (!OnPlank)
 	{
 		m_step->PlayWaveFile(-2000, false); // 발소리 재생
 		//이동전 좌표  기억
 		lastPosition = m_Models[num]->position;
-
+		isMoved = true;
 
 		if (position.x == 70.0f)
 		{
@@ -972,4 +1761,6 @@ void GraphicsClass::MoveObject(D3DXVECTOR3 position)
 
 		m_objMatrices[num + 80] = Translate(m_Models[num], m_Models[num]->position, m_Models[num]->scale, rotaiotn);
 	}
+
+	return;
 }
