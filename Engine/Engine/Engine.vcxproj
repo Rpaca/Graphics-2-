@@ -100,8 +100,11 @@
     <ClCompile Include="skyboxclass.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TerrainShader.cpp" />
     <ClCompile Include="textclass.cpp" />
     <ClCompile Include="textureclass.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="textureshaderclass.cpp" />
     <ClCompile Include="timerclass.cpp" />
   </ItemGroup>
@@ -124,8 +127,11 @@
     <ClInclude Include="skyboxclass.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="systemclass.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TerrainShader.h" />
     <ClInclude Include="textclass.h" />
     <ClInclude Include="textureclass.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="textureshaderclass.h" />
     <ClInclude Include="timerclass.h" />
   </ItemGroup>
@@ -136,6 +142,8 @@
     <None Include="light.vs" />
     <None Include="pointlight.ps" />
     <None Include="pointlight.vs" />
+    <None Include="Terrain.ps" />
+    <None Include="Terrain.vs" />
     <None Include="texture.ps" />
     <None Include="texture.vs" />
   </ItemGroup>

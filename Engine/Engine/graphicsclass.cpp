@@ -42,6 +42,8 @@ GraphicsClass::GraphicsClass()
 	isInfo = 0;
 	IsEnd = 0;
 	isPlayer1Win = 0;
+
+	m_Terrain = 0;
 }
 
 
@@ -140,6 +142,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	m_Camera->SetPosition(262.0f, 475.0f, -165.0f);
 	m_Camera->Pitch(0.8f);
 
+
+	// Create the terrain object.
+	m_Terrain = new Terrain;
+	if (!m_Terrain)
+	{
+		return false;
+	}
+
+	// Initialize the terrain object.
+	result = m_Terrain->Initialize(m_D3D->GetDevice(), "../Engine/data/setup.txt");
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
+		return false;
+	}
 
 
 	const int NumOfModel = 29;
@@ -387,9 +404,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Initialize the light object.
 	m_Light->SetAmbientColor(0.50f, 0.50f, 0.50f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(-30.0f, -10.0f, 0.0f);
+	m_Light->SetDirection(-0.5f, -1.0f, 0.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetSpecularPower(32.0f);
+	m_Light->SetSpecularPower(30.0f);
 	
 
 
@@ -422,6 +439,47 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
+	}
+
+
+	// Create the shader manager object.
+	m_TerrainShader = new TerrainShader;
+	if (!m_TerrainShader)
+	{
+		return false;
+	}
+
+	// Initialize the shader manager object.
+	result = m_TerrainShader->Initialize(m_D3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the shader manager object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+	WCHAR* terrainTextures[2] = {
+	L"../Engine/data/stone001.dds",
+	L"../Engine/data/ice_bump.dds"
+	};
+
+
+	// Create the texture manager object.
+	m_TerrainTextures = new TextureManager;
+	if (!m_TerrainTextures) return false;
+
+	// Initialize the texture manager object.
+	result = m_TerrainTextures->Initialize(2);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the texture manager object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Load textures into the texture manager.
+	for (int i = 0; i < 2; ++i) {
+		result = m_TerrainTextures->LoadTexture(m_D3D->GetDevice(), terrainTextures[i], i);
+		if (!result) return false;
 	}
 
 	if (!isStart)
@@ -807,11 +865,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	}
 
 
-
-
-
-
-
 	m_Skybox = new SkyboxClass;
 	if (!m_Skybox)
 	{
@@ -959,18 +1012,12 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 			m_orcVoice->PlayWaveFile(-2000, false);
 			OnState = OnEnumy;
 			isMoved = false;
-
-			m_Camera->SetPosition(262.0f, 475.0f, 720.0f);
-			m_Camera->Yaw(3.14159f);
 		}
 		else
 		{
 			m_manVoice->PlayWaveFile(-2000, false);
 			OnState = OnPlayer;
 			isMoved = false;
-
-			m_Camera->SetPosition(262.0f, 475.0f, -165.0f);
-			m_Camera->Yaw(3.14159f);
 		}
 
 	}
@@ -1269,6 +1316,21 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->TurnOffAlphaBlending();
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
+
+	m_D3D->GetWorldMatrix(worldMatrix);
+	// Set the terrain shader parameters that it will use for rendering.
+	m_TerrainShader->SetShaderParameters(m_D3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,
+		m_TerrainTextures->GetTexture(0), m_TerrainTextures->GetTexture(1), m_Light->GetDiffuseColor(), m_Light->GetDirection());
+
+	// Render the terrain using the quad tree and terrain shader.
+	//m_QuadTree->Render(m_Frustum, m_D3D->GetDeviceContext(), m_ShaderManager);
+	//m_numOfPolygons += m_QuadTree->GetDrawCount();
+	result = m_Text->SetNumOfPolygons(m_numOfPolygons, m_D3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	//m_Models[0]->Render(m_D3D->GetDeviceContext());

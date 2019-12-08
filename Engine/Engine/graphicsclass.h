@@ -22,6 +22,11 @@
 #include "skyboxclass.h"
 #include "Sound.h"
 
+
+#include "Terrain.h"
+#include "TerrainShader.h"
+#include "TextureManager.h"
+
 /////////////
 // GLOBALS //
 /////////////
@@ -130,5 +135,9 @@ private:
 	void				MoveObject(D3DXVECTOR3);
 	D3DXMATRIX			Translate(ModelClass*, D3DXVECTOR3, D3DXVECTOR3, float);
 
+
+	Terrain				*m_Terrain;
+	TextureManager		*m_TerrainTextures;
+	TerrainShader		*m_TerrainShader;
 };
 #endif
