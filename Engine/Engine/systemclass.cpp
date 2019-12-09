@@ -378,6 +378,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	// All other messages pass to the message handler in the system class.
 	default:
 	{
+
 		return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
 	}
 	}

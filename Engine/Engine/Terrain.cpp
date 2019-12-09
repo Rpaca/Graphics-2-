@@ -29,12 +29,19 @@ bool Terrain::Initialize(ID3D11Device* device, const char* setupFileName)
 		return false;
 	}
 
-	// Initialize the terrain height map with the data from the bitmap file.
-	result = LoadBitmapHeightMap();
+	//// Initialize the terrain height map with the data from the bitmap file.
+	//result = LoadBitmapHeightMap();
+	//if (!result)
+	//{
+	//	return false;
+	//}
+	// 원시 파일의 데이터로 지형 높이 맵을 초기화합니다.
+	result = LoadRawHeightMap();
 	if (!result)
 	{
 		return false;
 	}
+
 
 	// Setup the X and Z coordinates for the height map as well as scale the terrain height by the height scale value.
 	SetTerrainCoordinates();
@@ -75,6 +82,68 @@ bool Terrain::Initialize(ID3D11Device* device, const char* setupFileName)
 
 	// Release the terrain model now that the rendering buffers have been loaded.
 	ShutdownTerrainModel();
+
+	return true;
+}
+
+
+bool Terrain::LoadRawHeightMap()
+{
+	// 높이 맵 데이터를 보관할 플로트 배열을 만듭니다.
+	m_heightMap = new HeightMapType[m_terrainWidth * m_terrainHeight];
+	if (!m_heightMap)
+	{
+		return false;
+	}
+
+	// 바이너리로 읽을 수 있도록 16 비트 원시 높이 맵 파일을 엽니다.
+	FILE* filePtr = nullptr;
+	if (fopen_s(&filePtr, m_terrainFilename, "rb") != 0)
+	{
+		return false;
+	}
+
+	// 원시 이미지 데이터의 크기를 계산합니다.
+	int imageSize = m_terrainHeight * m_terrainWidth;
+
+	// 원시 이미지 데이터에 메모리를 할당합니다.
+	unsigned short* rawImage = new unsigned short[imageSize];
+	if (!rawImage)
+	{
+		return false;
+	}
+
+	// 원시 이미지 데이터를 읽습니다.
+	if (fread(rawImage, sizeof(unsigned short), imageSize, filePtr) != imageSize)
+	{
+		return false;
+	}
+
+	// 파일을 닫습니다.
+	if (fclose(filePtr) != 0)
+	{
+		return false;
+	}
+
+	// 이미지 데이터를 높이 맵 배열에 복사합니다.
+	for (int j = 0; j < m_terrainHeight; j++)
+	{
+		for (int i = 0; i < m_terrainWidth; i++)
+		{
+			int index = (m_terrainWidth * j) + i;
+
+			// 높이 맵 배열에이 지점의 높이를 저장합니다.
+			m_heightMap[index].y = (float)rawImage[index];
+		}
+	}
+
+	// 비트 맵 이미지 데이터를 해제합니다.
+	delete[] rawImage;
+	rawImage = 0;
+
+	// 이제 읽은 지형 파일 이름을 해제합니다.
+	delete[] m_terrainFilename;
+	m_terrainFilename = 0;
 
 	return true;
 }

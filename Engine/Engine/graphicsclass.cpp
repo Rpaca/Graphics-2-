@@ -141,7 +141,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 	// Initialize a base view matrix with the camera for 2D user interface rendering.
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
-	m_Camera->SetPosition(262.0f, 475.0f, -165.0f);
+	m_Camera->SetPosition(484.0f, 320.0f, 31.0f);
 	m_Camera->Pitch(0.8f);
 
 
@@ -236,7 +236,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		{ 280.0f, 8.0f, 0.0f},
 		{ 280.0f, 7.0f, 550.0f},
 		{ -5000.0f, -50.0f, 200.0f},
-		{ 800.0f, 20.0f, 200.0f},
+		{ 650.0f, 20.0f, 200.0f},
 		{ -50.0f, 0.0f, 0.0f},
 		{ -50.0f, 0.0f, 150.0f},
 		{ 280.0f, 0.0f, -150.0f},
@@ -265,15 +265,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		{ 5595.0f, 0.0f, 35.0f},
 	};
 
+
+	for (int i = 0; i < NumOfModel; i++)
+	{
+		positions[i] += {200.0f, 5.0f, 200.0f};
+	}
+
 	D3DXVECTOR3 scales[] = {
 		{ 0.5f, 0.5f, 0.5f},
 		{ 0.35f, 0.35f, 0.35f},
 		{ 15.0f, 15.0f, 15.0f},
 		{ 5.0f, 5.0f, 5.0f},
-		{ 10.0f, 10.0f, 10.0f},
+		{ 6.0f, 6.0f, 6.0f},
 		{ 0.1f, 0.1f, 0.1f},
 		{ 0.5f, 0.5f, 0.5f},
-		{ 50.0f, 80.0f, 50.0f},
+		{ 45.0f, 60.0f, 45.0f},
 		{ 2.0f, 2.0f, 2.0f},
 
 		{ 0.39f, 0.39f, 0.39},
@@ -340,7 +346,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 			m_objMatrices.push_back(objMat);
 			positions[0] += {70.0f, 0.0f, 0.0f};
 		}
-		positions[0].x = 0.0f;
+		positions[0].x = 200.0f;
 		positions[0] += {0.0f, 0.0f, 70.0f};
 	}
 
@@ -1672,12 +1678,12 @@ bool GraphicsClass::Render(float rotation)
 		return false;
 	}
 
-	if (m_Models[1]->position.z >= 550)
+	if (m_Models[1]->position.z >= 750)
 	{
 		IsEnd = true;
 		isPlayer1Win = true;
 	}
-	if (m_Models[2]->position.z <= 0)
+	if (m_Models[2]->position.z <= 200)
 	{
 		IsEnd = true;
 	}
