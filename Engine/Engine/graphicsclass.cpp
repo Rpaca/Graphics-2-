@@ -44,6 +44,8 @@ GraphicsClass::GraphicsClass()
 	isPlayer1Win = 0;
 
 	m_Terrain = 0;
+	m_QuadTree = 0;
+	m_Frustum = 0;
 }
 
 
@@ -233,7 +235,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		{ 0.0f, 0.0f, 0.0f},
 		{ 280.0f, 8.0f, 0.0f},
 		{ 280.0f, 7.0f, 550.0f},
-		{ 200.0f, -50.0f, 200.0f},
+		{ -5000.0f, -50.0f, 200.0f},
 		{ 800.0f, 20.0f, 200.0f},
 		{ -50.0f, 0.0f, 0.0f},
 		{ -50.0f, 0.0f, 150.0f},
@@ -441,16 +443,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
-
 	// Create the shader manager object.
-	m_TerrainShader = new TerrainShader;
-	if (!m_TerrainShader)
+	m_ShaderManager = new ShaderManager;
+	if (!m_ShaderManager)
 	{
 		return false;
 	}
 
 	// Initialize the shader manager object.
-	result = m_TerrainShader->Initialize(m_D3D->GetDevice(), hwnd);
+	result = m_ShaderManager->Initialize(m_D3D->GetDevice(), hwnd, baseViewMatrix);
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the shader manager object.", L"Error", MB_OK);
@@ -878,7 +879,26 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd, Inp
 		return false;
 	}
 
+	// Create the frustum object.
+	m_Frustum = new Frustum;
+	if (!m_Frustum)
+	{
+		return false;
+	}
 
+	m_QuadTree = new QuadTree;
+	if (!m_QuadTree)
+	{
+		return false;
+	}
+
+	// Initialize the quad tree object.
+	result = m_QuadTree->Initialize(m_Terrain, m_D3D->GetDevice());
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the quad tree object.", L"Error", MB_OK);
+		return false;
+	}
 
 	return true;
 }
@@ -1301,6 +1321,9 @@ bool GraphicsClass::Render(float rotation)
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 	m_D3D->GetOrthoMatrix(orthoMatrix);
 
+
+
+
 	// Rotate the world matrix by the rotation value so that the triangle will spin.
 	//D3DXMatrixRotationY(&worldMatrix, rotation);
 
@@ -1317,19 +1340,20 @@ bool GraphicsClass::Render(float rotation)
 	// Turn the Z buffer back on now that all 2D rendering has completed.
 	m_D3D->TurnZBufferOn();
 
+
+
 	m_D3D->GetWorldMatrix(worldMatrix);
+
+	// Construct the frustum.
+	m_Frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+
 	// Set the terrain shader parameters that it will use for rendering.
-	m_TerrainShader->SetShaderParameters(m_D3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,
+	m_ShaderManager->GetTerrainShader()->SetShaderParameters(m_D3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix,
 		m_TerrainTextures->GetTexture(0), m_TerrainTextures->GetTexture(1), m_Light->GetDiffuseColor(), m_Light->GetDirection());
 
 	// Render the terrain using the quad tree and terrain shader.
-	//m_QuadTree->Render(m_Frustum, m_D3D->GetDeviceContext(), m_ShaderManager);
-	//m_numOfPolygons += m_QuadTree->GetDrawCount();
-	result = m_Text->SetNumOfPolygons(m_numOfPolygons, m_D3D->GetDeviceContext());
-	if (!result)
-	{
-		return false;
-	}
+	m_QuadTree->Render(m_Frustum, m_D3D->GetDeviceContext(), m_ShaderManager);
+
 
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.

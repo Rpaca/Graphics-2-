@@ -88,6 +88,7 @@
     <ClCompile Include="fontclass.cpp" />
     <ClCompile Include="fontshaderclass.cpp" />
     <ClCompile Include="fpsclass.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
     <ClCompile Include="lightclass.cpp" />
@@ -97,6 +98,8 @@
     <ClCompile Include="PCH.cpp" />
     <ClCompile Include="pointlightclass.cpp" />
     <ClCompile Include="poitntlightshaderclass.cpp" />
+    <ClCompile Include="QuadTree.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="skyboxclass.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="systemclass.cpp" />
@@ -116,6 +119,7 @@
     <ClInclude Include="fontclass.h" />
     <ClInclude Include="fontshaderclass.h" />
     <ClInclude Include="fpsclass.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
     <ClInclude Include="lightclass.h" />
@@ -124,6 +128,8 @@
     <ClInclude Include="PCH.h" />
     <ClInclude Include="pointlightclass.h" />
     <ClInclude Include="pointlightshaderclass.h" />
+    <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="skyboxclass.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="systemclass.h" />

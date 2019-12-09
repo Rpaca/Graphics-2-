@@ -1,6 +1,6 @@
 Terrain Filename: ../Engine/data/heightmap.bmp
 Terrain Height: 513
 Terrain Width: 513
-Terrain Scaling: 12.0
+Terrain Scaling: 500.0
 Color Map Filename: ../Engine/data/colormap.bmp
 

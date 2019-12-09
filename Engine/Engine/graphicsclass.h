@@ -24,9 +24,10 @@
 
 
 #include "Terrain.h"
-#include "TerrainShader.h"
 #include "TextureManager.h"
-
+#include "Frustum.h"
+#include "QuadTree.h" 
+#include "ShaderManager.h"
 /////////////
 // GLOBALS //
 /////////////
@@ -138,6 +139,9 @@ private:
 
 	Terrain				*m_Terrain;
 	TextureManager		*m_TerrainTextures;
-	TerrainShader		*m_TerrainShader;
+	QuadTree			*m_QuadTree;
+	Frustum				*m_Frustum;
+	ShaderManager		*m_ShaderManager;
+	bool				 m_wireFrame;
 };
 #endif
